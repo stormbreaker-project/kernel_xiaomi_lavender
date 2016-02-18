@@ -196,6 +196,7 @@ struct dbs_governor {
 	unsigned int (*gov_dbs_timer)(struct cpufreq_policy *policy);
 	int (*init)(struct dbs_data *dbs_data, bool notify);
 	void (*exit)(struct dbs_data *dbs_data, bool notify);
+	void (*start)(struct cpufreq_policy *policy);
 
 	/* Governor specific ops, see below */
 	void *gov_ops;
