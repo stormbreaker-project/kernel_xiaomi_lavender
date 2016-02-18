@@ -153,17 +153,10 @@ struct cpu_dbs_info {
 
 struct od_cpu_dbs_info_s {
 	struct cpu_dbs_info cdbs;
-	struct cpufreq_frequency_table *freq_table;
-	unsigned int freq_lo;
-	unsigned int freq_lo_delay_us;
-	unsigned int freq_hi_delay_us;
-	unsigned int sample_type:1;
 };
 
 struct cs_cpu_dbs_info_s {
 	struct cpu_dbs_info cdbs;
-	unsigned int down_skip;
-	unsigned int requested_freq;
 };
 
 /* Per policy Governors sysfs tunables */
@@ -194,6 +187,8 @@ struct dbs_governor {
 	struct cpu_dbs_info *(*get_cpu_cdbs)(int cpu);
 	void *(*get_cpu_dbs_info_s)(int cpu);
 	unsigned int (*gov_dbs_timer)(struct cpufreq_policy *policy);
+	struct policy_dbs_info *(*alloc)(void);
+	void (*free)(struct policy_dbs_info *policy_dbs);
 	int (*init)(struct dbs_data *dbs_data, bool notify);
 	void (*exit)(struct dbs_data *dbs_data, bool notify);
 	void (*start)(struct cpufreq_policy *policy);
