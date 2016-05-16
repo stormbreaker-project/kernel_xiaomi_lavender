@@ -2764,10 +2764,7 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
 	}
 
 	pr_info("driver %s up and running\n", driver_data->name);
-
-out:
-	put_online_cpus();
-	return ret;
+	goto out;
 
 err_if_unreg:
 	subsys_interface_unregister(&cpufreq_interface);
@@ -2777,7 +2774,9 @@ err_null_driver:
 	write_lock_irqsave(&cpufreq_driver_lock, flags);
 	cpufreq_driver = NULL;
 	write_unlock_irqrestore(&cpufreq_driver_lock, flags);
-	goto out;
+out:
+	put_online_cpus();
+	return ret;
 }
 EXPORT_SYMBOL_GPL(cpufreq_register_driver);
 
