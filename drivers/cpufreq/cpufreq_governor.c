@@ -539,7 +539,7 @@ static int cpufreq_governor_init(struct cpufreq_policy *policy)
 		goto out;
 
 	/* Failure, so roll back. */
-	pr_err("cpufreq: Governor initialization failed (dbs_data kobject init error %d)\n", ret);
+	pr_err("initialization failed (dbs_data kobject init error %d)\n", ret);
 
 	policy->governor_data = NULL;
 
