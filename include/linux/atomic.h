@@ -201,158 +201,26 @@
 #endif
 #endif /* atomic_cmpxchg_relaxed */
 
-#ifndef atomic64_read_acquire
-#define  atomic64_read_acquire(v)	smp_load_acquire(&(v)->counter)
-#endif
+#ifndef atomic_try_cmpxchg
 
-#ifndef atomic64_set_release
-#define  atomic64_set_release(v, i)	smp_store_release(&(v)->counter, (i))
-#endif
+#define __atomic_try_cmpxchg(type, _p, _po, _n)				\
+({									\
+	typeof(_po) __po = (_po);					\
+	typeof(*(_po)) __o = *__po;					\
+	*__po = atomic_cmpxchg##type((_p), __o, (_n));			\
+	(*__po == __o);							\
+})
 
-/* atomic64_add_return_relaxed */
-#ifndef atomic64_add_return_relaxed
-#define  atomic64_add_return_relaxed	atomic64_add_return
-#define  atomic64_add_return_acquire	atomic64_add_return
-#define  atomic64_add_return_release	atomic64_add_return
+#define atomic_try_cmpxchg(_p, _po, _n)		__atomic_try_cmpxchg(, _p, _po, _n)
+#define atomic_try_cmpxchg_relaxed(_p, _po, _n)	__atomic_try_cmpxchg(_relaxed, _p, _po, _n)
+#define atomic_try_cmpxchg_acquire(_p, _po, _n)	__atomic_try_cmpxchg(_acquire, _p, _po, _n)
+#define atomic_try_cmpxchg_release(_p, _po, _n)	__atomic_try_cmpxchg(_release, _p, _po, _n)
 
-#else /* atomic64_add_return_relaxed */
-
-#ifndef atomic64_add_return_acquire
-#define  atomic64_add_return_acquire(...)				\
-	__atomic_op_acquire(atomic64_add_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_add_return_release
-#define  atomic64_add_return_release(...)				\
-	__atomic_op_release(atomic64_add_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_add_return
-#define  atomic64_add_return(...)					\
-	__atomic_op_fence(atomic64_add_return, __VA_ARGS__)
-#endif
-#endif /* atomic64_add_return_relaxed */
-
-/* atomic64_inc_return_relaxed */
-#ifndef atomic64_inc_return_relaxed
-#define  atomic64_inc_return_relaxed	atomic64_inc_return
-#define  atomic64_inc_return_acquire	atomic64_inc_return
-#define  atomic64_inc_return_release	atomic64_inc_return
-
-#else /* atomic64_inc_return_relaxed */
-
-#ifndef atomic64_inc_return_acquire
-#define  atomic64_inc_return_acquire(...)				\
-	__atomic_op_acquire(atomic64_inc_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_inc_return_release
-#define  atomic64_inc_return_release(...)				\
-	__atomic_op_release(atomic64_inc_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_inc_return
-#define  atomic64_inc_return(...)					\
-	__atomic_op_fence(atomic64_inc_return, __VA_ARGS__)
-#endif
-#endif /* atomic64_inc_return_relaxed */
-
-
-/* atomic64_sub_return_relaxed */
-#ifndef atomic64_sub_return_relaxed
-#define  atomic64_sub_return_relaxed	atomic64_sub_return
-#define  atomic64_sub_return_acquire	atomic64_sub_return
-#define  atomic64_sub_return_release	atomic64_sub_return
-
-#else /* atomic64_sub_return_relaxed */
-
-#ifndef atomic64_sub_return_acquire
-#define  atomic64_sub_return_acquire(...)				\
-	__atomic_op_acquire(atomic64_sub_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_sub_return_release
-#define  atomic64_sub_return_release(...)				\
-	__atomic_op_release(atomic64_sub_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_sub_return
-#define  atomic64_sub_return(...)					\
-	__atomic_op_fence(atomic64_sub_return, __VA_ARGS__)
-#endif
-#endif /* atomic64_sub_return_relaxed */
-
-/* atomic64_dec_return_relaxed */
-#ifndef atomic64_dec_return_relaxed
-#define  atomic64_dec_return_relaxed	atomic64_dec_return
-#define  atomic64_dec_return_acquire	atomic64_dec_return
-#define  atomic64_dec_return_release	atomic64_dec_return
-
-#else /* atomic64_dec_return_relaxed */
-
-#ifndef atomic64_dec_return_acquire
-#define  atomic64_dec_return_acquire(...)				\
-	__atomic_op_acquire(atomic64_dec_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_dec_return_release
-#define  atomic64_dec_return_release(...)				\
-	__atomic_op_release(atomic64_dec_return, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_dec_return
-#define  atomic64_dec_return(...)					\
-	__atomic_op_fence(atomic64_dec_return, __VA_ARGS__)
-#endif
-#endif /* atomic64_dec_return_relaxed */
-
-/* atomic64_xchg_relaxed */
-#ifndef atomic64_xchg_relaxed
-#define  atomic64_xchg_relaxed		atomic64_xchg
-#define  atomic64_xchg_acquire		atomic64_xchg
-#define  atomic64_xchg_release		atomic64_xchg
-
-#else /* atomic64_xchg_relaxed */
-
-#ifndef atomic64_xchg_acquire
-#define  atomic64_xchg_acquire(...)					\
-	__atomic_op_acquire(atomic64_xchg, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_xchg_release
-#define  atomic64_xchg_release(...)					\
-	__atomic_op_release(atomic64_xchg, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_xchg
-#define  atomic64_xchg(...)						\
-	__atomic_op_fence(atomic64_xchg, __VA_ARGS__)
-#endif
-#endif /* atomic64_xchg_relaxed */
-
-/* atomic64_cmpxchg_relaxed */
-#ifndef atomic64_cmpxchg_relaxed
-#define  atomic64_cmpxchg_relaxed	atomic64_cmpxchg
-#define  atomic64_cmpxchg_acquire	atomic64_cmpxchg
-#define  atomic64_cmpxchg_release	atomic64_cmpxchg
-
-#else /* atomic64_cmpxchg_relaxed */
-
-#ifndef atomic64_cmpxchg_acquire
-#define  atomic64_cmpxchg_acquire(...)					\
-	__atomic_op_acquire(atomic64_cmpxchg, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_cmpxchg_release
-#define  atomic64_cmpxchg_release(...)					\
-	__atomic_op_release(atomic64_cmpxchg, __VA_ARGS__)
-#endif
-
-#ifndef atomic64_cmpxchg
-#define  atomic64_cmpxchg(...)						\
-	__atomic_op_fence(atomic64_cmpxchg, __VA_ARGS__)
-#endif
-#endif /* atomic64_cmpxchg_relaxed */
+#else /* atomic_try_cmpxchg */
+#define atomic_try_cmpxchg_relaxed	atomic_try_cmpxchg
+#define atomic_try_cmpxchg_acquire	atomic_try_cmpxchg
+#define atomic_try_cmpxchg_release	atomic_try_cmpxchg
+#endif /* atomic_try_cmpxchg */
 
 /* cmpxchg_relaxed */
 #ifndef cmpxchg_relaxed
@@ -551,6 +419,180 @@ static inline int atomic_dec_if_positive(atomic_t *v)
 #ifdef CONFIG_GENERIC_ATOMIC64
 #include <asm-generic/atomic64.h>
 #endif
+
+#ifndef atomic64_read_acquire
+#define  atomic64_read_acquire(v)	smp_load_acquire(&(v)->counter)
+#endif
+
+#ifndef atomic64_set_release
+#define  atomic64_set_release(v, i)	smp_store_release(&(v)->counter, (i))
+#endif
+
+/* atomic64_add_return_relaxed */
+#ifndef atomic64_add_return_relaxed
+#define  atomic64_add_return_relaxed	atomic64_add_return
+#define  atomic64_add_return_acquire	atomic64_add_return
+#define  atomic64_add_return_release	atomic64_add_return
+
+#else /* atomic64_add_return_relaxed */
+
+#ifndef atomic64_add_return_acquire
+#define  atomic64_add_return_acquire(...)				\
+	__atomic_op_acquire(atomic64_add_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_add_return_release
+#define  atomic64_add_return_release(...)				\
+	__atomic_op_release(atomic64_add_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_add_return
+#define  atomic64_add_return(...)					\
+	__atomic_op_fence(atomic64_add_return, __VA_ARGS__)
+#endif
+#endif /* atomic64_add_return_relaxed */
+
+/* atomic64_inc_return_relaxed */
+#ifndef atomic64_inc_return_relaxed
+#define  atomic64_inc_return_relaxed	atomic64_inc_return
+#define  atomic64_inc_return_acquire	atomic64_inc_return
+#define  atomic64_inc_return_release	atomic64_inc_return
+
+#else /* atomic64_inc_return_relaxed */
+
+#ifndef atomic64_inc_return_acquire
+#define  atomic64_inc_return_acquire(...)				\
+	__atomic_op_acquire(atomic64_inc_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_inc_return_release
+#define  atomic64_inc_return_release(...)				\
+	__atomic_op_release(atomic64_inc_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_inc_return
+#define  atomic64_inc_return(...)					\
+	__atomic_op_fence(atomic64_inc_return, __VA_ARGS__)
+#endif
+#endif /* atomic64_inc_return_relaxed */
+
+
+/* atomic64_sub_return_relaxed */
+#ifndef atomic64_sub_return_relaxed
+#define  atomic64_sub_return_relaxed	atomic64_sub_return
+#define  atomic64_sub_return_acquire	atomic64_sub_return
+#define  atomic64_sub_return_release	atomic64_sub_return
+
+#else /* atomic64_sub_return_relaxed */
+
+#ifndef atomic64_sub_return_acquire
+#define  atomic64_sub_return_acquire(...)				\
+	__atomic_op_acquire(atomic64_sub_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_sub_return_release
+#define  atomic64_sub_return_release(...)				\
+	__atomic_op_release(atomic64_sub_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_sub_return
+#define  atomic64_sub_return(...)					\
+	__atomic_op_fence(atomic64_sub_return, __VA_ARGS__)
+#endif
+#endif /* atomic64_sub_return_relaxed */
+
+/* atomic64_dec_return_relaxed */
+#ifndef atomic64_dec_return_relaxed
+#define  atomic64_dec_return_relaxed	atomic64_dec_return
+#define  atomic64_dec_return_acquire	atomic64_dec_return
+#define  atomic64_dec_return_release	atomic64_dec_return
+
+#else /* atomic64_dec_return_relaxed */
+
+#ifndef atomic64_dec_return_acquire
+#define  atomic64_dec_return_acquire(...)				\
+	__atomic_op_acquire(atomic64_dec_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_dec_return_release
+#define  atomic64_dec_return_release(...)				\
+	__atomic_op_release(atomic64_dec_return, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_dec_return
+#define  atomic64_dec_return(...)					\
+	__atomic_op_fence(atomic64_dec_return, __VA_ARGS__)
+#endif
+#endif /* atomic64_dec_return_relaxed */
+
+/* atomic64_xchg_relaxed */
+#ifndef atomic64_xchg_relaxed
+#define  atomic64_xchg_relaxed		atomic64_xchg
+#define  atomic64_xchg_acquire		atomic64_xchg
+#define  atomic64_xchg_release		atomic64_xchg
+
+#else /* atomic64_xchg_relaxed */
+
+#ifndef atomic64_xchg_acquire
+#define  atomic64_xchg_acquire(...)					\
+	__atomic_op_acquire(atomic64_xchg, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_xchg_release
+#define  atomic64_xchg_release(...)					\
+	__atomic_op_release(atomic64_xchg, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_xchg
+#define  atomic64_xchg(...)						\
+	__atomic_op_fence(atomic64_xchg, __VA_ARGS__)
+#endif
+#endif /* atomic64_xchg_relaxed */
+
+/* atomic64_cmpxchg_relaxed */
+#ifndef atomic64_cmpxchg_relaxed
+#define  atomic64_cmpxchg_relaxed	atomic64_cmpxchg
+#define  atomic64_cmpxchg_acquire	atomic64_cmpxchg
+#define  atomic64_cmpxchg_release	atomic64_cmpxchg
+
+#else /* atomic64_cmpxchg_relaxed */
+
+#ifndef atomic64_cmpxchg_acquire
+#define  atomic64_cmpxchg_acquire(...)					\
+	__atomic_op_acquire(atomic64_cmpxchg, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_cmpxchg_release
+#define  atomic64_cmpxchg_release(...)					\
+	__atomic_op_release(atomic64_cmpxchg, __VA_ARGS__)
+#endif
+
+#ifndef atomic64_cmpxchg
+#define  atomic64_cmpxchg(...)						\
+	__atomic_op_fence(atomic64_cmpxchg, __VA_ARGS__)
+#endif
+#endif /* atomic64_cmpxchg_relaxed */
+
+#ifndef atomic64_try_cmpxchg
+
+#define __atomic64_try_cmpxchg(type, _p, _po, _n)			\
+({									\
+	typeof(_po) __po = (_po);					\
+	typeof(*(_po)) __o = *__po;					\
+	*__po = atomic64_cmpxchg##type((_p), __o, (_n));		\
+	(*__po == __o);							\
+})
+
+#define atomic64_try_cmpxchg(_p, _po, _n)		__atomic64_try_cmpxchg(, _p, _po, _n)
+#define atomic64_try_cmpxchg_relaxed(_p, _po, _n)	__atomic64_try_cmpxchg(_relaxed, _p, _po, _n)
+#define atomic64_try_cmpxchg_acquire(_p, _po, _n)	__atomic64_try_cmpxchg(_acquire, _p, _po, _n)
+#define atomic64_try_cmpxchg_release(_p, _po, _n)	__atomic64_try_cmpxchg(_release, _p, _po, _n)
+
+#else /* atomic64_try_cmpxchg */
+#define atomic64_try_cmpxchg_relaxed	atomic64_try_cmpxchg
+#define atomic64_try_cmpxchg_acquire	atomic64_try_cmpxchg
+#define atomic64_try_cmpxchg_release	atomic64_try_cmpxchg
+#endif /* atomic64_try_cmpxchg */
 
 #ifndef atomic64_andnot
 static inline void atomic64_andnot(long long i, atomic64_t *v)
