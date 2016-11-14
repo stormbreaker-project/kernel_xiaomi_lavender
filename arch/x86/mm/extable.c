@@ -3,6 +3,9 @@
 #include <linux/sort.h>
 #include <asm/uaccess.h>
 
+typedef bool (*ex_handler_t)(const struct exception_table_entry *,
+			    struct pt_regs *, int);
+
 static inline unsigned long
 ex_insn_addr(const struct exception_table_entry *x)
 {
@@ -13,11 +16,98 @@ ex_fixup_addr(const struct exception_table_entry *x)
 {
 	return (unsigned long)&x->fixup + x->fixup;
 }
-
-int fixup_exception(struct pt_regs *regs)
+static inline ex_handler_t
+ex_fixup_handler(const struct exception_table_entry *x)
 {
-	const struct exception_table_entry *fixup;
-	unsigned long new_ip;
+	return (ex_handler_t)((unsigned long)&x->handler + x->handler);
+}
+
+bool ex_handler_default(const struct exception_table_entry *fixup,
+		       struct pt_regs *regs, int trapnr)
+{
+	regs->ip = ex_fixup_addr(fixup);
+	return true;
+}
+EXPORT_SYMBOL(ex_handler_default);
+
+bool ex_handler_fault(const struct exception_table_entry *fixup,
+		     struct pt_regs *regs, int trapnr)
+{
+	regs->ip = ex_fixup_addr(fixup);
+	regs->ax = trapnr;
+	return true;
+}
+EXPORT_SYMBOL_GPL(ex_handler_fault);
+
+/*
+ * Handler for UD0 exception following a failed test against the
+ * result of a refcount inc/dec/add/sub.
+ */
+bool ex_handler_refcount(const struct exception_table_entry *fixup,
+			 struct pt_regs *regs, int trapnr)
+{
+	/* First unconditionally saturate the refcount. */
+	*(int *)regs->cx = INT_MIN / 2;
+
+	/*
+	 * Strictly speaking, this reports the fixup destination, not
+	 * the fault location, and not the actually overflowing
+	 * instruction, which is the instruction before the "js", but
+	 * since that instruction could be a variety of lengths, just
+	 * report the location after the overflow, which should be close
+	 * enough for finding the overflow, as it's at least back in
+	 * the function, having returned from .text.unlikely.
+	 */
+	regs->ip = ex_fixup_addr(fixup);
+
+	/*
+	 * This function has been called because either a negative refcount
+	 * value was seen by any of the refcount functions, or a zero
+	 * refcount value was seen by refcount_dec().
+	 *
+	 * If we crossed from INT_MAX to INT_MIN, OF (Overflow Flag: result
+	 * wrapped around) will be set. Additionally, seeing the refcount
+	 * reach 0 will set ZF (Zero Flag: result was zero). In each of
+	 * these cases we want a report, since it's a boundary condition.
+	 *
+	 */
+	if (regs->flags & (X86_EFLAGS_OF | X86_EFLAGS_ZF)) {
+		bool zero = regs->flags & X86_EFLAGS_ZF;
+
+		refcount_error_report(regs, zero ? "hit zero" : "overflow");
+	}
+
+	return true;
+}
+EXPORT_SYMBOL_GPL(ex_handler_refcount);
+
+bool ex_handler_ext(const struct exception_table_entry *fixup,
+		   struct pt_regs *regs, int trapnr)
+{
+	/* Special hack for uaccess_err */
+	current_thread_info()->uaccess_err = 1;
+	regs->ip = ex_fixup_addr(fixup);
+	return true;
+}
+EXPORT_SYMBOL(ex_handler_ext);
+
+bool ex_has_fault_handler(unsigned long ip)
+{
+	const struct exception_table_entry *e;
+	ex_handler_t handler;
+
+	e = search_exception_tables(ip);
+	if (!e)
+		return false;
+	handler = ex_fixup_handler(e);
+
+	return handler == ex_handler_fault;
+}
+
+int fixup_exception(struct pt_regs *regs, int trapnr)
+{
+	const struct exception_table_entry *e;
+	ex_handler_t handler;
 
 #ifdef CONFIG_PNPBIOS
 	if (unlikely(SEGMENT_IS_PNP_CODE(regs->cs))) {
@@ -33,42 +123,34 @@ int fixup_exception(struct pt_regs *regs)
 	}
 #endif
 
-	fixup = search_exception_tables(regs->ip);
-	if (fixup) {
-		new_ip = ex_fixup_addr(fixup);
+	e = search_exception_tables(regs->ip);
+	if (!e)
+		return 0;
 
-		if (fixup->fixup - fixup->insn >= 0x7ffffff0 - 4) {
-			/* Special hack for uaccess_err */
-			current_thread_info()->uaccess_err = 1;
-			new_ip -= 0x7ffffff0;
-		}
-		regs->ip = new_ip;
-		return 1;
-	}
-
-	return 0;
+	handler = ex_fixup_handler(e);
+	return handler(e, regs, trapnr);
 }
 
 /* Restricted version used during very early boot */
 int __init early_fixup_exception(unsigned long *ip)
 {
-	const struct exception_table_entry *fixup;
+	const struct exception_table_entry *e;
 	unsigned long new_ip;
+	ex_handler_t handler;
 
-	fixup = search_exception_tables(*ip);
-	if (fixup) {
-		new_ip = ex_fixup_addr(fixup);
+	e = search_exception_tables(*ip);
+	if (!e)
+		return 0;
 
-		if (fixup->fixup - fixup->insn >= 0x7ffffff0 - 4) {
-			/* uaccess handling not supported during early boot */
-			return 0;
-		}
+	new_ip  = ex_fixup_addr(e);
+	handler = ex_fixup_handler(e);
 
-		*ip = new_ip;
-		return 1;
-	}
+	/* special handling not supported during early boot */
+	if (handler != ex_handler_default)
+		return 0;
 
-	return 0;
+	*ip = new_ip;
+	return 1;
 }
 
 /*
@@ -133,6 +215,8 @@ void sort_extable(struct exception_table_entry *start,
 		i += 4;
 		p->fixup += i;
 		i += 4;
+		p->handler += i;
+		i += 4;
 	}
 
 	sort(start, finish - start, sizeof(struct exception_table_entry),
@@ -144,6 +228,8 @@ void sort_extable(struct exception_table_entry *start,
 		p->insn -= i;
 		i += 4;
 		p->fixup -= i;
+		i += 4;
+		p->handler -= i;
 		i += 4;
 	}
 }
