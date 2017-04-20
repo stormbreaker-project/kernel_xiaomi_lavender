@@ -5355,7 +5355,7 @@ static bool tcp_validate_incoming(struct sock *sk, struct sk_buff *skb,
 			 */
 			if (tp->syn_fastopen && !tp->data_segs_in &&
 			    sk->sk_state == TCP_ESTABLISHED)
-				tcp_fastopen_active_disable();
+				tcp_fastopen_active_disable(sk);
 			tcp_send_challenge_ack(sk, skb);
 		}
 		goto discard;
@@ -6115,7 +6115,7 @@ int tcp_rcv_state_process(struct sock *sk, struct sk_buff *skb)
 		    after(TCP_SKB_CB(skb)->end_seq - th->fin, tp->rcv_nxt)) {
 			/* Receive out of order FIN after close() */
 			if (tp->syn_fastopen && th->fin)
-				tcp_fastopen_active_disable();
+				tcp_fastopen_active_disable(sk);
 			tcp_done(sk);
 			NET_INC_STATS_BH(sock_net(sk), LINUX_MIB_TCPABORTONDATA);
 			return 1;
