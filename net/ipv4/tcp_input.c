@@ -2773,8 +2773,7 @@ static bool tcp_try_undo_partial(struct sock *sk, const int acked)
 	return false;
 }
 
-static void tcp_rack_identify_loss(struct sock *sk, int *ack_flag,
-				   const struct skb_mstamp *ack_time)
+static void tcp_rack_identify_loss(struct sock *sk, int *ack_flag)
 {
 	struct tcp_sock *tp = tcp_sk(sk);
 
@@ -2870,11 +2869,11 @@ static void tcp_fastretrans_alert(struct sock *sk, const int acked,
 			tcp_try_keep_open(sk);
 			return;
 		}
-		tcp_rack_identify_loss(sk, ack_flag, ack_time);
+		tcp_rack_identify_loss(sk, ack_flag);
 		break;
 	case TCP_CA_Loss:
 		tcp_process_loss(sk, flag, is_dupack, rexmit);
-		tcp_rack_identify_loss(sk, ack_flag, ack_time);
+		tcp_rack_identify_loss(sk, ack_flag);
 		if (!(icsk->icsk_ca_state == TCP_CA_Open ||
 		      (*ack_flag & FLAG_LOST_RETRANS)))
 			return;
@@ -2890,7 +2889,7 @@ static void tcp_fastretrans_alert(struct sock *sk, const int acked,
 		if (icsk->icsk_ca_state <= TCP_CA_Disorder)
 			tcp_try_undo_dsack(sk);
 
-		tcp_rack_identify_loss(sk, ack_flag, ack_time);
+		tcp_rack_identify_loss(sk, ack_flag);
 		if (!tcp_time_to_recover(sk, flag)) {
 			tcp_try_to_open(sk, flag);
 			return;
