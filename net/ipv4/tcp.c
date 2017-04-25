@@ -2787,7 +2787,7 @@ void tcp_get_info(struct sock *sk, struct tcp_info *info)
 	info->tcpi_advmss = tp->advmss;
 	info->tcpi_reordering = tp->reordering;
 
-	info->tcpi_rcv_rtt = jiffies_to_usecs(tp->rcv_rtt_est.rtt)>>3;
+	info->tcpi_rcv_rtt = tp->rcv_rtt_est.rtt_us >> 3;
 	info->tcpi_rcv_space = tp->rcvq_space.space;
 
 	info->tcpi_total_retrans = tp->total_retrans;
