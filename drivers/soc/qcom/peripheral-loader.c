@@ -158,7 +158,7 @@ struct pil_priv {
 static int pil_do_minidump(struct pil_desc *desc, void *ramdump_dev)
 {
 	struct boot_minidump_smem_region __iomem *region_info_ss;
-	struct boot_minidump_smem_region __iomem *region_info_pdr;
+	struct boot_minidump_smem_region __iomem *region_info_pdr = NULL;
 	struct ramdump_segment *ramdump_segs, *s;
 	struct pil_priv *priv = desc->priv;
 	void __iomem *subsys_smem_base_pdr;
