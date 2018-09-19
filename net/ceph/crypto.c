@@ -83,7 +83,6 @@ int ceph_crypto_key_unarmor(struct ceph_crypto_key *key, const char *inkey)
 static struct crypto_skcipher *ceph_crypto_alloc_cipher(void)
 {
 	return crypto_alloc_skcipher("cbc(aes)", 0, CRYPTO_ALG_ASYNC);
-}
 
 static const u8 *aes_iv = (u8 *)CEPH_AES_IV;
 
@@ -161,10 +160,19 @@ static int ceph_aes_encrypt(const void *key, int key_len,
 			    void *dst, size_t *dst_len,
 			    const void *src, size_t src_len)
 {
+<<<<<<< HEAD
 	struct scatterlist sg_in[2], prealloc_sg;
 	struct sg_table sg_out;
 	struct crypto_skcipher *tfm = ceph_crypto_alloc_cipher();
 	SKCIPHER_REQUEST_ON_STACK(req, tfm);
+=======
+	SYNC_SKCIPHER_REQUEST_ON_STACK(req, key->tfm);
+	struct sg_table sgt;
+	struct scatterlist prealloc_sg;
+	char iv[AES_BLOCK_SIZE] __aligned(8);
+	int pad_byte = AES_BLOCK_SIZE - (in_len & (AES_BLOCK_SIZE - 1));
+	int crypt_len = encrypt ? in_len + pad_byte : in_len;
+>>>>>>> 3da6f90dd255... libceph: Remove VLA usage of skcipher
 	int ret;
 	char iv[AES_BLOCK_SIZE];
 	size_t zero_padding = (0x10 - (src_len & 0x0f));
@@ -249,8 +257,12 @@ static int ceph_aes_encrypt2(const void *key, int key_len, void *dst,
 
 	crypto_skcipher_setkey((void *)tfm, key, key_len);
 	memcpy(iv, aes_iv, AES_BLOCK_SIZE);
+<<<<<<< HEAD
 
 	skcipher_request_set_tfm(req, tfm);
+=======
+	skcipher_request_set_sync_tfm(req, key->tfm);
+>>>>>>> 3da6f90dd255... libceph: Remove VLA usage of skcipher
 	skcipher_request_set_callback(req, 0, NULL, NULL);
 	skcipher_request_set_crypt(req, sg_in, sg_out.sgl,
 				   src1_len + src2_len + zero_padding, iv);
