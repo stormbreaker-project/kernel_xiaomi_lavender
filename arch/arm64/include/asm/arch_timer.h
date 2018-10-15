@@ -81,6 +81,8 @@ u32 arch_timer_reg_read_cp15(int access, enum arch_timer_reg reg)
 			asm volatile("mrs %0, cntv_tval_el0" : "=r" (val));
 			break;
 		}
+	} else {
+		val = 0;
 	}
 
 	return val;
