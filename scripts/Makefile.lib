@@ -277,7 +277,9 @@ cmd_gzip = (cat $(filter-out FORCE,$^) | gzip -n -f -9 > $@) || \
 
 # Disable noisy checks by default
 ifeq ($(KBUILD_ENABLE_EXTRA_GCC_CHECKS),)
-DTC_FLAGS += -Wno-unit_address_vs_reg
+DTC_FLAGS += -Wno-unit_address_vs_reg \
+	     -Wno-simple_bus_reg \
+	     -Wno-unit_address_format
 endif
 
 # Generate an assembly file to wrap the output of the device tree compiler
