@@ -57,10 +57,16 @@ extern struct clk_ops clk_dummy_ops;
 #define BM(msb, lsb) (((((uint32_t)-1) << (31-msb)) >> (31-msb+lsb)) << lsb)
 #define BVAL(msb, lsb, val)     (((val) << lsb) & BM(msb, lsb))
 
+#ifdef CONFIG_DEBUG_FS
 #define WARN_CLK(core, name, cond, fmt, ...) do {		\
 		clk_debug_print_hw(core, NULL);			\
 		WARN(cond, "%s: " fmt, name, ##__VA_ARGS__);	\
 } while (0)
+#else
+#define WARN_CLK(core, name, cond, fmt, ...) do {		\
+		WARN(cond, "%s: " fmt, name, ##__VA_ARGS__);	\
+} while (0)
+#endif
 
 #define clock_debug_output(m, c, fmt, ...)		\
 do {							\
