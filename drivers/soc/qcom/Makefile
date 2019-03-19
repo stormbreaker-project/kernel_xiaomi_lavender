@@ -51,7 +51,11 @@ ifdef CONFIG_MSM_SUBSYSTEM_RESTART
 	obj-$(CONFIG_MSM_GVM_QUIN) += subsystem_notif_virt.o
 endif
 
+ifdef CONFIG_KERNEL_CUSTOM_F7A
+obj-$(CONFIG_QPNP_HAPTIC) += qpnp-haptic-f7a.o
+else
 obj-$(CONFIG_QPNP_HAPTIC) += qpnp-haptic.o
+endif
 obj-$(CONFIG_QCOM_GSBI)	+=	qcom_gsbi.o
 obj-$(CONFIG_QCOM_CPUSS_DUMP) += cpuss_dump.o
 obj-$(CONFIG_QPNP_PBS) += qpnp-pbs.o
@@ -113,3 +117,4 @@ obj-$(CONFIG_MSM_CACHE_M4M_ERP64) += cache_m4m_erp64.o
 obj-$(CONFIG_MSM_HAB) += hab/
 obj-$(CONFIG_QCOM_QDSS_BRIDGE) += qdss_bridge.o
 obj-$(CONFIG_MFSE_QMI) += mfse_qmi_v01.o mfse_qmi.o
+obj-y += serial_num.o
