@@ -11,6 +11,7 @@ msm_kgsl_core-y = \
 	kgsl_events.o \
 	kgsl_pool.o
 
+msm_kgsl_core-$(CONFIG_DEBUG_KERNEL) += kgsl_trace.o
 msm_kgsl_core-$(CONFIG_QCOM_KGSL_IOMMU) += kgsl_iommu.o
 msm_kgsl_core-$(CONFIG_DEBUG_FS) += kgsl_debugfs.o
 msm_kgsl_core-$(CONFIG_QCOM_KGSL_CFF_DUMP) += kgsl_cffdump.o
@@ -28,6 +29,10 @@ msm_adreno-y += \
 	adreno.o \
 	adreno_cp_parser.o \
 	adreno_perfcounter.o
+
+ifdef CONFIG_DEBUG_KERNEL
+msm_adreno-y += adreno_trace.o
+endif
 
 msm_adreno-$(CONFIG_QCOM_KGSL_IOMMU) += adreno_iommu.o
 msm_adreno-$(CONFIG_DEBUG_FS) += adreno_debugfs.o adreno_profile.o
