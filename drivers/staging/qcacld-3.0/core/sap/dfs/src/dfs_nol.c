@@ -90,6 +90,7 @@ done:
 	return;
 }
 
+#ifdef DFS_DEBUG
 void dfs_print_nol(struct ath_dfs *dfs)
 {
 	struct dfs_nolelem *nol;
@@ -111,6 +112,7 @@ void dfs_print_nol(struct ath_dfs *dfs)
 		nol = nol->nol_next;
 	}
 }
+#endif
 
 void
 dfs_get_nol(struct ath_dfs *dfs, struct dfsreq_nolelem *dfs_nol, int *nchan)
