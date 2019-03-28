@@ -903,12 +903,21 @@ uint8_t dfs_retain_bin5_burst_pattern(struct ath_dfs *dfs, uint32_t diff_ts,
 int dfs_get_random_bin5_dur(struct ath_dfs *dfs, uint64_t tstamp);
 
 /* Debug prototypes */
+#ifdef DFS_DEBUG
 void dfs_print_delayline(struct ath_dfs *dfs, struct dfs_delayline *dl);
 void dfs_print_nol(struct ath_dfs *dfs);
 void dfs_print_filters(struct ath_dfs *dfs);
 void dfs_print_activity(struct ath_dfs *dfs);
 os_timer_func(dfs_debug_timeout);
 void dfs_print_filter(struct ath_dfs *dfs, struct dfs_filter *rf);
+#else
+static inline void dfs_print_delayline(struct ath_dfs *dfs, struct dfs_delayline *dl) {}
+static inline void dfs_print_nol(struct ath_dfs *dfs) {}
+static inline void dfs_print_filters(struct ath_dfs *dfs) {}
+static inline void dfs_print_activity(struct ath_dfs *dfs) {}
+static inline os_timer_func(dfs_debug_timeout) {}
+static inline void dfs_print_filter(struct ath_dfs *dfs, struct dfs_filter *rf) {}
+#endif
 
 /* Misc prototypes */
 uint32_t dfs_round(int32_t val);
