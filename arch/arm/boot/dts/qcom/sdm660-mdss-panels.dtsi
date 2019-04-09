@@ -134,7 +134,14 @@
 		23 1e 07 08 05 03 04 a0
 		23 1e 07 08 05 03 04 a0
 		23 18 07 08 04 03 04 a0];
-	qcom,esd-check-enabled;
+	qcom,mdss-dsi-pan-enable-dynamic-bitclk;
+	qcom,mdss-dsi-dynamic-bitclk_freq = <798240576 801594528 804948480 808302432 811656384>;
+	qcom,mdss-dsi-pan-enable-dynamic-fps;
+	qcom,mdss-dsi-pan-fps-update = "dfps_suspend_resume_mode";
+	qcom,partial-update-enabled = "single_roi";
+	qcom,panel-roi-alignment = <2 2 4 2 1080 2>;	
+	qcom,ulps-enabled;
+	qcom,suspend-ulps-enabled;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0a];
 	qcom,mdss-dsi-panel-status-command-state = "dsi_hs_mode";
@@ -142,13 +149,8 @@
 	qcom,mdss-dsi-panel-on-check-value = <0x9c>;
 	qcom,mdss-dsi-panel-status-read-length = <1>;
 	qcom,mdss-dsi-panel-max-error-count = <3>;
-	qcom,mdss-dsi-min-refresh-rate = <53>;
+	qcom,mdss-dsi-min-refresh-rate = <24>;
 	qcom,mdss-dsi-max-refresh-rate = <60>;
-	qcom,mdss-dsi-pan-enable-dynamic-bitclk;
-	qcom,mdss-dsi-dynamic-bitclk_freq = <798240576 801594528 804948480
-		808302432 811656384>;
-	qcom,mdss-dsi-pan-enable-dynamic-fps;
-	qcom,mdss-dsi-pan-fps-update = "dfps_immediate_porch_mode_vfp";
 };
 
 &dsi_dual_nt35597_truly_cmd {
