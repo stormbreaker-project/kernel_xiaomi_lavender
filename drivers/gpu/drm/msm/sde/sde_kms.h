@@ -44,10 +44,7 @@
  */
 #define SDE_DEBUG(fmt, ...)                                                \
 	do {                                                               \
-		if (unlikely(drm_debug & DRM_UT_KMS))                      \
-			drm_ut_debug_printk(__func__, fmt, ##__VA_ARGS__); \
-		else                                                       \
-			pr_debug(fmt, ##__VA_ARGS__);                      \
+		no_printk(fmt, ##__VA_ARGS__);                             \
 	} while (0)
 
 /**
@@ -56,10 +53,7 @@
  */
 #define SDE_DEBUG_DRIVER(fmt, ...)                                         \
 	do {                                                               \
-		if (unlikely(drm_debug & DRM_UT_DRIVER))                   \
-			drm_ut_debug_printk(__func__, fmt, ##__VA_ARGS__); \
-		else                                                       \
-			pr_debug(fmt, ##__VA_ARGS__);                      \
+		no_printk(fmt, ##__VA_ARGS__);                             \
 	} while (0)
 
 #define SDE_ERROR(fmt, ...) pr_err("[sde error]" fmt, ##__VA_ARGS__)
