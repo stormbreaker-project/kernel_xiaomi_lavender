@@ -727,9 +727,9 @@ static void write_default_values(struct cgroup_subsys_state *css)
 {
 	u8 i;
 	char cg_name[11];
-	const int boost_values[4] = { 0, 1, 0, 0 };
-	const bool prefer_idle_values[4] = { 0, 1, 1, 0 };
-	const char *stune_groups[] =
+	static const int boost_values[4] = { 0, 1, 0, 0 };
+	static const bool prefer_idle_values[4] = { 0, 1, 1, 0 };
+	static const char *stune_groups[] =
 	{ "/", "top-app", "foreground", "background" };
 
 	/* Get the name of a group that was parsed */
@@ -737,7 +737,7 @@ static void write_default_values(struct cgroup_subsys_state *css)
 
 	for (i = 0; i < ARRAY_SIZE(stune_groups); i++) {
 		/* Look it up in the array and set values */
-		if (!memcmp(cg_name, stune_groups[i], sizeof(*stune_groups[i]))) {
+		if (!strcmp(cg_name, stune_groups[i])) {
 			boost_write(css, NULL, boost_values[i]);
 			prefer_idle_write(css, NULL, prefer_idle_values[i]);
 			pr_info("%s: setting %s to %i and %i\n",
