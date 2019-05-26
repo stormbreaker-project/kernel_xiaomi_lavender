@@ -4432,7 +4432,7 @@ ssize_t codec_mbhc_debug_read(struct file *file, char __user *buf,
 			      size_t count, loff_t *pos)
 {
 	const int size = 768;
-	char buffer[size];
+	char buffer[768];
 	int n = 0;
 	struct wcd9xxx_mbhc *mbhc = file->private_data;
 	const struct mbhc_internal_cal_data *p = &mbhc->mbhc_data;
