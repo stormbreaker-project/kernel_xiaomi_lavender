@@ -805,7 +805,7 @@ static ssize_t diag_dbgfs_write_debug(struct file *fp, const char __user *buf,
 				      size_t count, loff_t *ppos)
 {
 	const int size = 10;
-	unsigned char cmd[size];
+	unsigned char cmd[10];
 	long value = 0;
 	int len = 0;
 
