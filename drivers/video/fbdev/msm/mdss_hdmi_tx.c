@@ -576,6 +576,7 @@ static ssize_t hdmi_tx_sysfs_rda_connected(struct device *dev,
 	return ret;
 } /* hdmi_tx_sysfs_rda_connected */
 
+#define char_to_nib 2
 static ssize_t hdmi_tx_sysfs_wta_edid(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t count)
 {
@@ -583,7 +584,6 @@ static ssize_t hdmi_tx_sysfs_wta_edid(struct device *dev,
 	struct hdmi_tx_ctrl *hdmi_ctrl = NULL;
 	int i = 0;
 	const char *buf_t = buf;
-	const int char_to_nib = 2;
 	int edid_size = count / char_to_nib;
 
 	hdmi_ctrl = hdmi_tx_get_drvdata_from_sysfs_dev(dev);
