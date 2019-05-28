@@ -3660,6 +3660,7 @@ static int wcd9xxx_update_rel_threshold(struct wcd9xxx_mbhc *mbhc, int ceilmv,
 	return 0;
 }
 
+#define NBTNMEAS 1
 irqreturn_t wcd9xxx_dce_handler(int irq, void *data)
 {
 	int i, mask;
@@ -3673,9 +3674,9 @@ irqreturn_t wcd9xxx_dce_handler(int irq, void *data)
 	struct wcd9xxx_mbhc *mbhc = data;
 	const struct wcd9xxx_mbhc_btn_detect_cfg *d =
 	    WCD9XXX_MBHC_CAL_BTN_DET_PTR(mbhc->mbhc_cfg->calibration);
-	short btnmeas[d->n_btn_meas + 1];
-	short dce[d->n_btn_meas + 1], sta;
-	s32 mv[d->n_btn_meas + 1], mv_s[d->n_btn_meas + 1];
+	short btnmeas[NBTNMEAS + 1];
+	short dce[NBTNMEAS + 1], sta;
+	s32 mv[NBTNMEAS + 1], mv_s[NBTNMEAS + 1];
 	struct snd_soc_codec *codec = mbhc->codec;
 	struct wcd9xxx_core_resource *core_res = mbhc->resmgr->core_res;
 	int n_btn_meas = d->n_btn_meas;
