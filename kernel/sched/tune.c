@@ -720,12 +720,20 @@ static struct cftype files[] = {
 	{
 		.name = "boost",
 		.read_s64 = boost_read,
+#ifdef CONFIG_STUNE_ASSIST
 		.write_s64 = boost_write_wrapper,
+#else
+		.write_s64 = boost_write,
+#endif
 	},
 	{
 		.name = "prefer_idle",
 		.read_u64 = prefer_idle_read,
+#ifdef CONFIG_STUNE_ASSIST
 		.write_u64 = prefer_idle_write_wrapper,
+#else
+		.write_u64 = prefer_idle_write,
+#endif
 	},
 	{ }	/* terminate */
 };
