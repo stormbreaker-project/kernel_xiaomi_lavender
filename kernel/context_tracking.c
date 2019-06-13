@@ -76,7 +76,7 @@ void __context_tracking_enter(enum ctx_state state)
 			 * on the tick.
 			 */
 			if (state == CONTEXT_USER) {
-				trace_user_enter(0);
+				//trace_user_enter(0);
 				vtime_user_enter(current);
 			}
 			rcu_user_enter();
@@ -155,7 +155,7 @@ void __context_tracking_exit(enum ctx_state state)
 			rcu_user_exit();
 			if (state == CONTEXT_USER) {
 				vtime_user_exit(current);
-				trace_user_exit(0);
+				//trace_user_exit(0);
 			}
 		}
 		__this_cpu_write(context_tracking.state, CONTEXT_KERNEL);

@@ -2250,12 +2250,12 @@ print_usage_bug(struct task_struct *curr, struct held_lock *this,
 	printk("inconsistent {%s} -> {%s} usage.\n",
 		usage_str[prev_bit], usage_str[new_bit]);
 
-	printk("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] takes:\n",
-		curr->comm, task_pid_nr(curr),
-		trace_hardirq_context(curr), hardirq_count() >> HARDIRQ_SHIFT,
-		trace_softirq_context(curr), softirq_count() >> SOFTIRQ_SHIFT,
-		trace_hardirqs_enabled(curr),
-		trace_softirqs_enabled(curr));
+	//printk("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] takes:\n",
+	//	curr->comm, task_pid_nr(curr),
+	//	trace_hardirq_context(curr), hardirq_count() >> HARDIRQ_SHIFT,
+	//	trace_softirq_context(curr), softirq_count() >> SOFTIRQ_SHIFT,
+	//	trace_hardirqs_enabled(curr),
+	//	trace_softirqs_enabled(curr));
 	print_lock(this);
 
 	printk("{%s} state was registered at:\n", usage_str[prev_bit]);
@@ -2620,7 +2620,7 @@ EXPORT_SYMBOL(trace_hardirqs_on_caller);
 
 void trace_hardirqs_on(void)
 {
-	trace_hardirqs_on_caller(CALLER_ADDR0);
+	//trace_hardirqs_on_caller(CALLER_ADDR0);
 }
 EXPORT_SYMBOL(trace_hardirqs_on);
 
@@ -2658,7 +2658,7 @@ EXPORT_SYMBOL(trace_hardirqs_off_caller);
 
 void trace_hardirqs_off(void)
 {
-	trace_hardirqs_off_caller(CALLER_ADDR0);
+	//trace_hardirqs_off_caller(CALLER_ADDR0);
 }
 EXPORT_SYMBOL(trace_hardirqs_off);
 
