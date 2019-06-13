@@ -3583,9 +3583,7 @@ exit:
 		dprintk(VIDC_ERR,
 				"Failed to move from state: %d to %d\n",
 				inst->state, state);
-	else
-		trace_msm_vidc_common_state_change((void *)inst,
-				inst->state, state);
+
 	return rc;
 }
 
