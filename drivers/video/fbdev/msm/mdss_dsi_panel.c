@@ -49,6 +49,14 @@ extern bool synaptics_gesture_enable_flag;
 bool ESD_TE_status = false;
 DEFINE_LED_TRIGGER(bl_led_trigger);
 
+static bool ce_enable = true;
+static bool srgb_enable = true;
+static bool cabc_enable = false;
+
+module_param(ce_enable, bool, 0644);
+module_param(srgb_enable, bool, 0644);
+module_param(cabc_enable, bool, 0644);
+
 void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 {
 	if (ctrl->pwm_pmi)
