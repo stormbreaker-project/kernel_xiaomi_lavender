@@ -752,22 +752,21 @@ schedtune_boostgroup_init(struct schedtune *st, int idx)
 static void write_default_values(struct cgroup_subsys_state *css)
 {
 	u8 i;
-	char cg_name[11];
-	static const int boost_values[4] = { 0, 0, 0, -25 };
-	static const bool prefer_idle_values[4] = { 0, 1, 1, 0 };
-	static const char *stune_groups[] =
-	{ "/", "top-app", "foreground", "background" };
+	struct groups_data {
+		char *name;
+		int boost;
+		bool prefer_idle;
+	};
 
-	/* Get the name of a group that was parsed */
-	cgroup_name(css->cgroup, cg_name, sizeof(cg_name));
+	struct groups_data groups[3] = {
+		{ "top-app",	1, 1 },
+		{ "foreground", 0, 1 },
+		{ "background", 0, 0 }};
 
-	for (i = 0; i < ARRAY_SIZE(stune_groups); i++) {
-		/* Look it up in the array and set values */
-		if (!strcmp(cg_name, stune_groups[i])) {
-			boost_write(css, NULL, boost_values[i]);
-			prefer_idle_write(css, NULL, prefer_idle_values[i]);
-			pr_info("%s: setting %s to %i and %i\n",
-			__func__, stune_groups[i], boost_values[i], prefer_idle_values[i]);
+	for (i = 0; i < ARRAY_SIZE(groups); i++) {
+		if (!strcmp(css->cgroup->kn->name, groups[i].name)) {
+			boost_write(css, NULL, groups[i].boost);
+			prefer_idle_write(css, NULL, groups[i].prefer_idle);
 		}
 	}
 }
