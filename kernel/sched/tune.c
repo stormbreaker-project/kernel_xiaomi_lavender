@@ -690,16 +690,40 @@ boost_write(struct cgroup_subsys_state *css, struct cftype *cft,
 	return 0;
 }
 
+#ifdef CONFIG_STUNE_ASSIST
+static int boost_write_wrapper(struct cgroup_subsys_state *css,
+			struct cftype *cft, s64 boost)
+{
+	if (!strcmp(current->comm, "init"))
+		return 0;
+
+	boost_write(css, NULL, boost);
+
+	return 0;
+}
+
+static int prefer_idle_write_wrapper(struct cgroup_subsys_state *css,
+			struct cftype *cft, u64 prefer_idle)
+{
+	if (!strcmp(current->comm, "init"))
+		return 0;
+
+	prefer_idle_write(css, NULL, prefer_idle);
+
+	return 0;
+}
+#endif
+
 static struct cftype files[] = {
 	{
 		.name = "boost",
 		.read_s64 = boost_read,
-		.write_s64 = boost_write,
+		.write_s64 = boost_write_wrapper,
 	},
 	{
 		.name = "prefer_idle",
 		.read_u64 = prefer_idle_read,
-		.write_u64 = prefer_idle_write,
+		.write_u64 = prefer_idle_write_wrapper,
 	},
 	{ }	/* terminate */
 };
@@ -727,7 +751,7 @@ static void write_default_values(struct cgroup_subsys_state *css)
 {
 	u8 i;
 	char cg_name[11];
-	static const int boost_values[4] = { 0, 1, 0, 0 };
+	static const int boost_values[4] = { 0, 0, 0, -25 };
 	static const bool prefer_idle_values[4] = { 0, 1, 1, 0 };
 	static const char *stune_groups[] =
 	{ "/", "top-app", "foreground", "background" };
@@ -762,18 +786,13 @@ schedtune_css_alloc(struct cgroup_subsys_state *parent_css)
 		return ERR_PTR(-ENOMEM);
 	}
 
-	/* Allow only a limited number of boosting groups */
+	for (idx = 1; idx < BOOSTGROUPS_COUNT; ++idx) {
+		if (!allocated_group[idx])
+			break;
 #ifdef CONFIG_STUNE_ASSIST
-	for (idx = 0; idx < BOOSTGROUPS_COUNT; ++idx) {
-		if (!allocated_group[idx])
-			break;
 		write_default_values(&allocated_group[idx]->css);
-	}
-#else
-	for (idx = 1; idx < BOOSTGROUPS_COUNT; ++idx)
-		if (!allocated_group[idx])
-			break;
 #endif
+	}
 	if (idx == BOOSTGROUPS_COUNT) {
 		pr_err("Trying to create more than %d SchedTune boosting groups\n",
 		       BOOSTGROUPS_COUNT);
