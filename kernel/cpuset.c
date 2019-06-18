@@ -1772,7 +1772,7 @@ static ssize_t cpuset_write_resmask_wrapper(struct kernfs_open_file *of,
 		{ "system", 			"0-1,6-7"},
 		{ "audio-app",			"0-3,6-7"},
 		{ "camera-daemon",		"0-3,6-7"},
-		{ "foreground",			"0-3,6-7"},
+		{ "foreground",			"0-3"},
 		{ "top-app",			"0-7"}};
 
 	if (!strcmp(current->comm, "init")) {
