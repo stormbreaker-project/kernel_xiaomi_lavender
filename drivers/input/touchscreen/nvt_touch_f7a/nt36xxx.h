@@ -30,7 +30,7 @@
 
 #include "../lct_tp_info.h"
 
-#define NVT_DEBUG 1
+#define NVT_DEBUG 0
 
 
 #define NVTTOUCH_RST_PIN 66
@@ -94,7 +94,7 @@ extern const uint16_t touch_key_array[TOUCH_KEY_NUM];
 
 #define NVT_TOUCH_PROC 1
 #define NVT_TOUCH_EXT_PROC 1
-#define NVT_TOUCH_MP 1
+#define NVT_TOUCH_MP 0
 #define MT_PROTOCOL_B 1
 #define WAKEUP_GESTURE 1
 #if WAKEUP_GESTURE
@@ -109,7 +109,7 @@ extern const uint16_t gesture_key_array[];
 
 
 
-#define NVT_TOUCH_ESD_PROTECT 1
+#define NVT_TOUCH_ESD_PROTECT 0
 #define NVT_TOUCH_ESD_CHECK_PERIOD 1500	/* ms */
 
 
