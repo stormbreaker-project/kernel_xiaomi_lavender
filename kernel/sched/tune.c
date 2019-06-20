@@ -694,7 +694,9 @@ boost_write(struct cgroup_subsys_state *css, struct cftype *cft,
 static int boost_write_wrapper(struct cgroup_subsys_state *css,
 			struct cftype *cft, s64 boost)
 {
-	if (!strcmp(current->comm, "init"))
+	if (!memcmp(current->comm, "init", sizeof("init")) ||
+		!memcmp(current->comm, "NodeLooperThrea", sizeof("NodeLooperThrea")) ||
+		!memcmp(current->comm, "power@", sizeof("power@")))
 		return 0;
 
 	boost_write(css, NULL, boost);
@@ -705,7 +707,7 @@ static int boost_write_wrapper(struct cgroup_subsys_state *css,
 static int prefer_idle_write_wrapper(struct cgroup_subsys_state *css,
 			struct cftype *cft, u64 prefer_idle)
 {
-	if (!strcmp(current->comm, "init"))
+	if (!memcmp(current->comm, "init", sizeof("init")))
 		return 0;
 
 	prefer_idle_write(css, NULL, prefer_idle);
