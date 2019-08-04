@@ -751,9 +751,11 @@ struct st_data {
 static void write_default_values(struct cgroup_subsys_state *css)
 {
 	static struct st_data st_targets[] = {
+		{ "audio-app",	0, 0 },
+		{ "background",	-25, 0 },
+		{ "foreground",	0, 1 },
+		{ "rt",		0, 0 },
 		{ "top-app",	1, 1 },
-		{ "foreground", 0, 1 },
-		{ "background", 0, 0 }
 	};
 	int i;
 
