@@ -53,6 +53,7 @@
 #include <linux/time.h>
 #include <linux/backing-dev.h>
 #include <linux/sort.h>
+#include <linux/binfmts.h>
 
 #include <asm/uaccess.h>
 #include <linux/atomic.h>
@@ -132,6 +133,13 @@ struct cpuset {
 	/* for custom sched domain */
 	int relax_domain_level;
 };
+
+#ifdef CONFIG_CPUSETS_ASSIST
+struct cs_target {
+	const char *name;
+	char *cpus;
+};
+#endif
 
 static inline struct cpuset *css_cs(struct cgroup_subsys_state *css)
 {
@@ -1693,11 +1701,6 @@ static ssize_t cpuset_write_resmask(struct kernfs_open_file *of,
 	struct cpuset *trialcs;
 	int retval = -ENODEV;
 
-#ifndef CONFIG_CPUSET_ASSIST
-	/* Don't call strstrip here because buf is read-only */
-	buf = strstrip(buf);
-#endif
-
 	/*
 	 * CPU or memory hotunplug may leave @cs w/o any execution
 	 * resources, in which case the hotplug code asynchronously updates
@@ -1757,30 +1760,27 @@ out_unlock:
 static ssize_t cpuset_write_resmask_wrapper(struct kernfs_open_file *of,
 					 char *buf, size_t nbytes, loff_t off)
 {
-#ifdef CONFIG_CPUSET_ASSIST
-	int i;
-	struct cpuset *cs = css_cs(of_css(of));
-	struct c_data {
-		char *c_name;
-		char *c_cpus;
+#ifdef CONFIG_CPUSETS_ASSIST
+	static struct cs_target cs_targets[] = {
+		{ "audio-app",		"1-2" },
+		{ "background",		"0-3" },
+		{ "camera-daemon",	"0-3,6-7" },
+		{ "foreground",		"0-3" },
+		{ "restricted",		"0-1" },
+		{ "system-background",	"0-3" },
+		{ "top-app",		"0-7" },
 	};
-	struct c_data c_targets[8] = {
-		/* Silver only cpusets go first */
-		{ "background",			"0-1"},
-		{ "restricted",			"0-3"},
-		{ "system-background", 		"0-3"},
-		{ "system", 			"0-1,6-7"},
-		{ "audio-app",			"0-3,6-7"},
-		{ "camera-daemon",		"0-3,6-7"},
-		{ "foreground",			"0-3"},
-		{ "top-app",			"0-7"}};
 
-	if (!strcmp(current->comm, "init")) {
-		for (i = 0; i < ARRAY_SIZE(c_targets); i++) {
-			if (!strcmp(cs->css.cgroup->kn->name, c_targets[i].c_name)) {
-				strcpy(buf, c_targets[i].c_cpus);
-				break;
-			}
+	struct cpuset *cs = css_cs(of_css(of));
+	int i;
+
+	if (task_is_booster(current)) {
+		for (i = 0; i < ARRAY_SIZE(cs_targets); i++) {
+			struct cs_target tgt = cs_targets[i];
+
+			if (!strcmp(cs->css.cgroup->kn->name, tgt.name))
+				return cpuset_write_resmask_assist(of, tgt,
+								   nbytes, off);
 		}
 	}
 #endif

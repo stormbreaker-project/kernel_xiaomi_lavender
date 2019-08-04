@@ -1364,13 +1364,12 @@ config SCHED_TUNE
 
 	  If unsure, say N.
 
-config CPUSET_ASSIST
+config CPUSETS_ASSIST
 	bool "CPUSet configuration helper"
 	depends on CPUSETS
 	depends on ANDROID
 	help
-	  This option enables the configuration of default cpusets
-	  parameters from kernel.
+	  This option enables in-kernel overrides for cpuset values.
 
 	  If unsure, say N.
 
