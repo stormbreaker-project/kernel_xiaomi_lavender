@@ -206,12 +206,12 @@ static int bcm_proc_show(struct seq_file *m, void *v)
 				op->can_id, bcm_proc_getifname(ifname, op->ifindex));
 		seq_printf(m, "[%u]%c ", op->nframes,
 				(op->flags & RX_CHECK_DLC)?'d':' ');
-		if (op->kt_ival1.tv64)
+		if (op->kt_ival1)
 			seq_printf(m, "timeo=%lld ",
 					(long long)
 					ktime_to_us(op->kt_ival1));
 
-		if (op->kt_ival2.tv64)
+		if (op->kt_ival2)
 			seq_printf(m, "thr=%lld ",
 					(long long)
 					ktime_to_us(op->kt_ival2));
@@ -232,11 +232,11 @@ static int bcm_proc_show(struct seq_file *m, void *v)
 				bcm_proc_getifname(ifname, op->ifindex),
 				op->nframes);
 
-		if (op->kt_ival1.tv64)
+		if (op->kt_ival1)
 			seq_printf(m, "t1=%lld ",
 					(long long) ktime_to_us(op->kt_ival1));
 
-		if (op->kt_ival2.tv64)
+		if (op->kt_ival2)
 			seq_printf(m, "t2=%lld ",
 					(long long) ktime_to_us(op->kt_ival2));
 
@@ -371,11 +371,11 @@ static void bcm_send_to_user(struct bcm_op *op, struct bcm_msg_head *head,
 
 static void bcm_tx_start_timer(struct bcm_op *op)
 {
-	if (op->kt_ival1.tv64 && op->count)
+	if (op->kt_ival1 && op->count)
 		hrtimer_start(&op->timer,
 			      ktime_add(ktime_get(), op->kt_ival1),
 			      HRTIMER_MODE_ABS);
-	else if (op->kt_ival2.tv64)
+	else if (op->kt_ival2)
 		hrtimer_start(&op->timer,
 			      ktime_add(ktime_get(), op->kt_ival2),
 			      HRTIMER_MODE_ABS);
@@ -386,7 +386,7 @@ static void bcm_tx_timeout_tsklet(unsigned long data)
 	struct bcm_op *op = (struct bcm_op *)data;
 	struct bcm_msg_head msg_head;
 
-	if (op->kt_ival1.tv64 && (op->count > 0)) {
+	if (op->kt_ival1 && (op->count > 0)) {
 
 		op->count--;
 		if (!op->count && (op->flags & TX_COUNTEVT)) {
@@ -404,7 +404,7 @@ static void bcm_tx_timeout_tsklet(unsigned long data)
 		}
 		bcm_can_tx(op);
 
-	} else if (op->kt_ival2.tv64)
+	} else if (op->kt_ival2)
 		bcm_can_tx(op);
 
 	bcm_tx_start_timer(op);
@@ -465,7 +465,7 @@ static void bcm_rx_update_and_send(struct bcm_op *op,
 	lastdata->can_dlc |= (RX_RECV|RX_THR);
 
 	/* throttling mode inactive ? */
-	if (!op->kt_ival2.tv64) {
+	if (!op->kt_ival2) {
 		/* send RX_CHANGED to the user immediately */
 		bcm_rx_changed(op, lastdata);
 		return;
@@ -476,7 +476,7 @@ static void bcm_rx_update_and_send(struct bcm_op *op,
 		return;
 
 	/* first reception with enabled throttling mode */
-	if (!op->kt_lastmsg.tv64)
+	if (!op->kt_lastmsg)
 		goto rx_changed_settime;
 
 	/* got a second frame inside a potential throttle period? */
@@ -540,7 +540,7 @@ static void bcm_rx_starttimer(struct bcm_op *op)
 	if (op->flags & RX_NO_AUTOTIMER)
 		return;
 
-	if (op->kt_ival1.tv64)
+	if (op->kt_ival1)
 		hrtimer_start(&op->timer, op->kt_ival1, HRTIMER_MODE_REL);
 }
 
@@ -994,7 +994,7 @@ static int bcm_tx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
 		op->kt_ival2 = bcm_timeval_to_ktime(msg_head->ival2);
 
 		/* disable an active timer due to zero values? */
-		if (!op->kt_ival1.tv64 && !op->kt_ival2.tv64)
+		if (!op->kt_ival1 && !op->kt_ival2)
 			hrtimer_cancel(&op->timer);
 	}
 
@@ -1179,7 +1179,7 @@ static int bcm_rx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
 			op->kt_ival2 = bcm_timeval_to_ktime(msg_head->ival2);
 
 			/* disable an active timer due to zero value? */
-			if (!op->kt_ival1.tv64)
+			if (!op->kt_ival1)
 				hrtimer_cancel(&op->timer);
 
 			/*
@@ -1191,7 +1191,7 @@ static int bcm_rx_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
 			bcm_rx_thr_flush(op, 1);
 		}
 
-		if ((op->flags & STARTTIMER) && op->kt_ival1.tv64)
+		if ((op->flags & STARTTIMER) && op->kt_ival1)
 			hrtimer_start(&op->timer, op->kt_ival1,
 				      HRTIMER_MODE_REL);
 	}
