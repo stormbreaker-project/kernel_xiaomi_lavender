@@ -46,9 +46,9 @@
 	status = "disabled";
 };
 
-&spi_7 {
+/*&spi_7 {
 	status = "disabled";
-};
+};*/
 
 &wdsp_mgr {
 	status = "disabled";
@@ -72,6 +72,7 @@
 
 &int_codec {
 	status = "okay";
+	qcom,wsa-disable;
 };
 
 &pmic_analog_codec {
@@ -80,4 +81,16 @@
 
 &msm_sdw_codec {
 	status = "okay";
+};
+
+&i2c_6 { /* SmartPA TI */
+	status = "okay";
+	max98927@3a {
+		compatible = "maxim,max98927L";
+		status = "okay";
+		reg = <0x3a>;
+		mono_stereo_mode = <0>;
+		interleave_mode = <0>;
+		maxim,98927-reset-gpio = <&tlmm 77 0>;
+	};
 };
