@@ -38,6 +38,8 @@
 
 #include "irq-gic-common.h"
 
+#include <linux/wakeup_reason.h> /*Add-HMI_M6100_A01-60*/
+
 struct redist_region {
 	void __iomem		*redist_base;
 	phys_addr_t		phys_base;
@@ -443,6 +445,22 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 			name = desc->action->name;
 
 		pr_warn("%s: %d triggered %s\n", __func__, irq, name);
+
+		/*Add-begin-HMI_M6100_A01-60
+		**Comment:Logging kernel wakeup reson
+		*/
+
+		/* irq 75 :rpm interrupt
+		** irq 12 :spmi interrupt
+		** irq 199:pinctrl interrupt
+		*/
+		if (75 == irq || 12 == irq || 199 == irq)
+			continue;
+
+		log_wakeup_reason(irq);
+
+		/*Add-end HMI_M6100_A01-60*/
+
 	}
 }
 

@@ -809,6 +809,12 @@ static void _a5xx_do_crashdump(struct kgsl_device *device)
 	crash_dump_valid = true;
 }
 
+/*Delete-begin-HMI_L8867_A02-364
+**Author:lijiang@longcheer.com
+**Date:2018-10-9
+**Comment:Power off charging kpanic issue,case#03677156 provide the patch
+*/
+#if 0
 static int get_hlsq_registers(struct kgsl_device *device,
 		const struct a5xx_hlsq_sp_tp_regs *regs, unsigned int *data)
 {
@@ -848,6 +854,8 @@ static size_t a5xx_snapshot_dump_hlsq_sp_tp_regs(struct kgsl_device *device,
 	/* Return the size of the section */
 	return (count * 8) + sizeof(*header);
 }
+#endif
+/*Delete-end-HMI_L8867_A02-364*/
 
 /*
  * a5xx_snapshot() - A5XX GPU snapshot function
@@ -896,10 +904,17 @@ void a5xx_snapshot(struct adreno_device *adreno_dev,
 				snapshot, a5xx_snapshot_registers, &regs);
 	}
 
-
+/*Delete-begin-HMI_L8867_A02-364
+**Author:lijiang@longcheer.com
+**Date:2018-10-9
+**Comment:Power off charging kpanic issue,case#03677156 provide the patch
+*/
+#if 0
 	/* Dump SP TP HLSQ registers */
 	kgsl_snapshot_add_section(device, KGSL_SNAPSHOT_SECTION_REGS, snapshot,
 		a5xx_snapshot_dump_hlsq_sp_tp_regs, NULL);
+#endif
+/*Delete-end-HMI_L8867_A02-364*/
 
 	/* CP_PFP indexed registers */
 	kgsl_snapshot_indexed_registers(device, snapshot,
