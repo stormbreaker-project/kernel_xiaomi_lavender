@@ -501,7 +501,7 @@ static void glink_xprt_notify_rxv(void *handle, const void *priv,
 static void glink_xprt_notify_tx_done(void *handle, const void *priv,
 				      const void *pkt_priv, const void *ptr)
 {
-	struct ipc_router_glink_xprt *glink_xprtp =
+	struct ipc_router_glink_xprt __maybe_unused *glink_xprtp =
 		(struct ipc_router_glink_xprt *)priv;
 	struct rr_packet *temp_pkt = (struct rr_packet *)ptr;
 
