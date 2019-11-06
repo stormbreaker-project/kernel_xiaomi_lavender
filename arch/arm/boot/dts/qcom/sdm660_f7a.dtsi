@@ -301,11 +301,10 @@
 	firmware: firmware {
 		android {
 			compatible = "android,firmware";
-				vbmeta {
+			vbmeta {
 				compatible = "android,vbmeta";
 				parts = "vbmeta,boot,system,vendor,dtbo,recovery";
 			};
-
 			fstab {
 				compatible = "android,fstab";
 				vendor {
@@ -690,9 +689,8 @@
 			 <&clock_gcc GCC_BLSP1_AHB_CLK>;
 		clock-names = "core", "iface";
 	};
-
 /*
-        qcom,qbt1000 {
+	qcom,qbt1000 {
 		compatible = "qcom,qbt1000";
 		clock-names = "core", "iface";
 		clocks = <&clock_gcc GCC_BLSP1_QUP3_SPI_APPS_CLK>,
@@ -702,7 +700,6 @@
 		qcom,finger-detect-gpio = <&pm660_gpios 11 0>;
 	};
 */
-
 	qcom,sensor-information {
 		compatible = "qcom,sensor-information";
 		sensor_information0: qcom,sensor-information-0 {
@@ -894,7 +891,7 @@
 		qcom,bcl-enable;
 		qcom,bcl-framework-interface;
 		qcom,bcl-hotplug-list = <&CPU6 &CPU7>;
-		qcom,bcl-soc-hotplug-list = <&CPU5 &CPU7>;
+		qcom,bcl-soc-hotplug-list = <&CPU4 &CPU5 &CPU6 &CPU7>;
 		qcom,ibat-monitor {
 			qcom,low-threshold-uamp = <3400000>;
 			qcom,high-threshold-uamp = <4200000>;
@@ -2441,12 +2438,13 @@
 		reg = <0x786040 0x8>;
 		reg-names = "fuse-base";
 	};
+
 	sn_fuse: snfuse@0xA4128 {
-        compatible = "qcom,sn-fuse";
-        reg = <0x786134 0x4>,
-              <0x78607C 0x4>;
-        reg-names = "sn-base","fuse-state";
-       };
+		compatible = "qcom,sn-fuse";
+		reg = <0x786134 0x4>,
+		      <0x78607C 0x4>;
+		reg-names = "sn-base","fuse-state";
+	};
 
 	jtag_mm0: jtagmm@7840000 {
 		compatible = "qcom,jtagv8-mm";
