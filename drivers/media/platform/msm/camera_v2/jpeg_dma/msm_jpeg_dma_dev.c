@@ -1493,7 +1493,6 @@ static struct platform_driver jpegdma_driver = {
 		.name = MSM_JPEGDMA_DRV_NAME,
 		.owner = THIS_MODULE,
 		.of_match_table = msm_jpegdma_dt_match,
-		.suppress_bind_attrs = true,
 	},
 };
 
