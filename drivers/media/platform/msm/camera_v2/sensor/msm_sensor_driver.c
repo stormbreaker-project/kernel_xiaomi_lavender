@@ -24,7 +24,6 @@ extern struct vendor_eeprom s_vendor_eeprom[CAMERA_VENDOR_EEPROM_COUNT_MAX];
 /* Logging macro */
 #undef CDBG
 #define CDBG(fmt, args...) pr_debug(fmt, ##args)
-#define LCT_CAMERA_DEBUG 0
 
 #define SENSOR_MAX_MOUNTANGLE (360)
 
@@ -188,14 +187,7 @@ static int32_t msm_sensor_fill_eeprom_subdevid_by_name(
 
 	if (!s_ctrl->sensordata->eeprom_name || !of_node)
 		return -EINVAL;
-	#if LCT_CAMERA_DEBUG
-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name s_ctrl->sensordata->eeprom_name  = %s \n", s_ctrl->sensordata->eeprom_name);
-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name s_ctrl->sensordata->sensor_name = %s \n", s_ctrl->sensordata->sensor_name);
-	#endif
 	eeprom_name_len = strlen(s_ctrl->sensordata->eeprom_name);
-	#if LCT_CAMERA_DEBUG
-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name eeprom_name_len  = %d \n", eeprom_name_len);
-	#endif
 	if (eeprom_name_len >= MAX_SENSOR_NAME)
 		return -EINVAL;
 
@@ -215,9 +207,6 @@ static int32_t msm_sensor_fill_eeprom_subdevid_by_name(
 		return 0;
 
 	count /= sizeof(uint32_t);
-	#if LCT_CAMERA_DEBUG
-	pr_err("msm_sensor_fill_eeprom_subdevid_by_name count  = %d \n", count);
-	#endif
 	for (i = 0; i < count; i++) {
 		userspace_probe = 0;
 		eeprom_name = NULL;
@@ -251,15 +240,9 @@ static int32_t msm_sensor_fill_eeprom_subdevid_by_name(
 			rc = of_property_read_string(src_node, "qcom,lct_eeprom-name", &lct_eeprom_name);
 			if(rc < 0)
 			{
-				#if LCT_CAMERA_DEBUG
-				pr_err("%s this eeprom not config  qcom,lct_eeprom-name rc = %d\n", __func__, rc);
-				#endif
 			}
 			else
 			{
-				#if LCT_CAMERA_DEBUG
-				pr_err("msm_sensor_fill_eeprom_subdevid_by_name lct_eeprom_name = %s\n", lct_eeprom_name);
-				#endif
 				if(strcmp(s_ctrl->sensordata->eeprom_name, lct_eeprom_name))
 				{
 					rc = 0;
