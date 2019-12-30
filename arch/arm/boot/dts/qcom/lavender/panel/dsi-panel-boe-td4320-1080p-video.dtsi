@@ -54,6 +54,9 @@
 		qcom,mdss-brightness-max-level = <4095>;
 		qcom,mdss-dsi-dma-trigger = "trigger_sw";
 		qcom,mdss-dsi-mdp-trigger = "none";
+		qcom,ulps-enabled;
+		qcom,panel-allow-phy-poweroff;
+
 	/*
 	 * reg35: enable te output,te signal polarity,te signal active lines within a frame
 	 * regff: page select
