@@ -87,7 +87,7 @@ enum print_reason {
 	PR_PARALLEL	= BIT(0),
 };
 
-static int debug_mask;
+static int debug_mask = 0xff;
 module_param_named(debug_mask, debug_mask, int, S_IRUSR | S_IWUSR);
 
 #define pl_dbg(chip, reason, fmt, ...)				\
@@ -332,7 +332,7 @@ static struct class_attribute pl_attributes[] = {
  *  TAPER  *
 ************/
 #define MINIMUM_PARALLEL_FCC_UA		500000
-#define PL_TAPER_WORK_DELAY_MS		500
+#define PL_TAPER_WORK_DELAY_MS		100
 #define TAPER_RESIDUAL_PCT		75
 static void pl_taper_work(struct work_struct *work)
 {
@@ -797,7 +797,7 @@ stepper_exit:
 	}
 }
 
-#define PARALLEL_FLOAT_VOLTAGE_DELTA_UV 50000
+#define PARALLEL_FLOAT_VOLTAGE_DELTA_UV 100000
 static int pl_fv_vote_callback(struct votable *votable, void *data,
 			int fv_uv, const char *client)
 {
@@ -865,8 +865,9 @@ static int usb_icl_vote_callback(struct votable *votable, void *data,
 	 *	unvote USBIN_I_VOTER) the status_changed_work enables
 	 *	USBIN_I_VOTER based on settled current.
 	 */
-	if (icl_ua <= 1400000)
+	if (icl_ua <= 1300000){
 		vote(chip->pl_enable_votable_indirect, USBIN_I_VOTER, false, 0);
+	}
 	else
 		schedule_delayed_work(&chip->status_change_work,
 						msecs_to_jiffies(PL_DELAY_MS));
@@ -1193,12 +1194,12 @@ static void handle_settled_icl_change(struct pl_data *chip)
 		return;
 	}
 	main_limited = pval.intval;
-
-	if ((main_limited && (main_settled_ua + chip->pl_settled_ua) < 1400000)
+	if ((main_limited && (main_settled_ua + chip->pl_settled_ua) < 1300000)
 			|| (main_settled_ua == 0)
 			|| ((total_current_ua >= 0) &&
-				(total_current_ua <= 1400000)))
+				(total_current_ua <= 1300000))){
 		vote(chip->pl_enable_votable_indirect, USBIN_I_VOTER, false, 0);
+	}
 	else
 		vote(chip->pl_enable_votable_indirect, USBIN_I_VOTER, true, 0);
 
