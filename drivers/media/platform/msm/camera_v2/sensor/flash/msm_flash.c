@@ -1072,6 +1072,12 @@ static int32_t msm_flash_get_pmic_source_info(
 				of_node_put(torch_src_node);
 				continue;
 			}
+			#ifdef CONFIG_KERNEL_CUSTOM_F7A
+			if(fctrl->torch_max_current[i] < 1000)
+			{
+				fctrl->torch_max_current[i] = 1000;
+			}
+			#endif
 
 			of_node_put(torch_src_node);
 
