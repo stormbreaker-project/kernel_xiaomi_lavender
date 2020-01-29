@@ -268,6 +268,7 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_ALLOW_HVDCP3,
 	POWER_SUPPLY_PROP_MAX_PULSE_ALLOWED,
 	POWER_SUPPLY_PROP_FG_RESET_CLOCK,
+	POWER_SUPPLY_PROP_RERUN_APSD,
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_PROP_CHARGE_COUNTER_EXT,
 	/* Properties of type `const char *' */
