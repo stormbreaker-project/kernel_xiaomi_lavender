@@ -2099,7 +2099,8 @@ next_adapter:
 		if (pAdapter->sessionId >= MAX_NUMBER_OF_ADAPTERS)
 			goto fetch_adapter;
 
-		sme_ps_timer_flush_sync(pHddCtx->hHal, pAdapter->sessionId);
+		if (!wlan_hdd_validate_session_id(pAdapter->sessionId))
+			sme_ps_timer_flush_sync(pHddCtx->hHal, pAdapter->sessionId);
 fetch_adapter:
 		status = hdd_get_next_adapter(pHddCtx, pAdapterNode,
 					      &pAdapterNode);
