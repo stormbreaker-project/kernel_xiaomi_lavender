@@ -2726,7 +2726,7 @@ int smblib_get_prop_die_health(struct smb_charger *chg,
 #else
 #define CDP_CURRENT_UA			1500000
 #endif
-#define DCP_CURRENT_UA			2000000
+#define DCP_CURRENT_UA			2100000
 #if defined(CONFIG_KERNEL_CUSTOM_D2S) || defined(CONFIG_KERNEL_CUSTOM_F7A)
 #define HVDCP2_CURRENT_UA		1500000
 #else
