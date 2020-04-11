@@ -413,7 +413,7 @@ static int awake_cb(struct votable *votable, void *data, int awake,
 	struct qnovo *chip = data;
 
 	if (awake)
-		pm_stay_awake(chip->dev);
+		pm_wakeup_event(chip->dev, 500);
 	else
 		pm_relax(chip->dev);
 
