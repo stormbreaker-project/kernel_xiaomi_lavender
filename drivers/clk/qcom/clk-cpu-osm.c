@@ -3094,16 +3094,14 @@ static unsigned long perfcl_boot_rate = 1747200000;
 static int clk_cpu_osm_driver_probe(struct platform_device *pdev)
 {
 	int rc = 0, cpu, i;
-	int speedbin = 0, pvs_ver = 0;
 	bool is_sdm630 = 0;
-	u32 pte_efuse;
 	int num_clks = ARRAY_SIZE(osm_qcom_clk_hws);
 	struct clk *clk;
 	struct clk *ext_xo_clk, *ext_hmss_gpll0_clk_src;
 	struct device *dev = &pdev->dev;
 	struct clk_onecell_data *clk_data;
-	char perfclspeedbinstr[] = "qcom,perfcl-speedbin0-v0";
-	char pwrclspeedbinstr[] = "qcom,pwrcl-speedbin0-v0";
+	char perfclspeedbinstr[] = "qcom,perfcl-speedbin1-v0";
+	char pwrclspeedbinstr[] = "qcom,pwrcl-speedbin1-v0";
 
 	/*
 	 * Require the RPM-XO clock and GCC-HMSS-GPLL0 clocks to be registererd
@@ -3149,36 +3147,12 @@ static int clk_cpu_osm_driver_probe(struct platform_device *pdev)
 		return rc;
 	}
 
-	if (pwrcl_clk.vbases[EFUSE_BASE]) {
-		/* Multiple speed-bins are supported */
-		pte_efuse = readl_relaxed(pwrcl_clk.vbases[EFUSE_BASE]);
-		speedbin = ((pte_efuse >> PWRCL_EFUSE_SHIFT) &
-						    PWRCL_EFUSE_MASK);
-		snprintf(pwrclspeedbinstr, ARRAY_SIZE(pwrclspeedbinstr),
-			 "qcom,pwrcl-speedbin%d-v%d", speedbin, pvs_ver);
-	}
-
-	dev_info(&pdev->dev, "using pwrcl speed bin %u and pvs_ver %d\n",
-		 speedbin, pvs_ver);
-
 	rc = clk_osm_get_lut(pdev, &pwrcl_clk, pwrclspeedbinstr);
 	if (rc) {
 		dev_err(&pdev->dev, "Unable to get OSM LUT for power cluster, rc=%d\n",
 			rc);
 		return rc;
 	}
-
-	if (perfcl_clk.vbases[EFUSE_BASE]) {
-		/* Multiple speed-bins are supported */
-		pte_efuse = readl_relaxed(perfcl_clk.vbases[EFUSE_BASE]);
-		speedbin = ((pte_efuse >> PERFCL_EFUSE_SHIFT) &
-							PERFCL_EFUSE_MASK);
-		snprintf(perfclspeedbinstr, ARRAY_SIZE(perfclspeedbinstr),
-			 "qcom,perfcl-speedbin%d-v%d", speedbin, pvs_ver);
-	}
-
-	dev_info(&pdev->dev, "using perfcl speed bin %u and pvs_ver %d\n",
-		 speedbin, pvs_ver);
 
 	rc = clk_osm_get_lut(pdev, &perfcl_clk, perfclspeedbinstr);
 	if (rc) {
