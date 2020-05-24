@@ -114,13 +114,6 @@
 };
 
 /* msm-pm660l */
-&red_led {
-	qcom,idx-len = <21>;
-	qcom,duty-pcts =
-		[00 19 32 4B 64
-		 64 4B 32 19 00];
-};
-
 &pm660l_wled {
  	qcom,fs-curr-ua = <20000>;
  	qcom,en-cabc;
