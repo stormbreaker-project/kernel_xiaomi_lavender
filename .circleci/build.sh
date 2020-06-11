@@ -2,15 +2,17 @@
 echo "Cloning dependencies"
 git clone --depth=1 https://github.com/stormbreaker-project/android_kernel_xiaomi_lavender -b dtc  kernel
 cd kernel
-git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
+git clone https://github.com/arter97/arm64-gcc --depth=1
+git clone https://github.com/arter97/arm32-gcc --depth=1
 git clone --depth=1 https://github.com/sohamxda7/AnyKernel3 AnyKernel
 echo "Done"
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
 TANGGAL=$(date +"%F-%S")
 START=$(date +"%s")
 export CONFIG_PATH=$PWD/arch/arm64/configs/lavender-perf_defconfig
-PATH="${PWD}/clang/bin:$PATH"
+PATH="$(pwd)/arm64-gcc/bin:$(pwd)/arm32-gcc/bin:${PATH}" \
 export ARCH=arm64
+export USE_CCACHE=1
 export KBUILD_BUILD_HOST=circleci
 export KBUILD_BUILD_USER="sohamsen"
 # sticker plox
@@ -49,11 +51,11 @@ function finerr() {
 # Compile plox
 function compile() {
    make O=out ARCH=arm64 lavender-perf_defconfig
+     PATH="$(pwd)/arm64-gcc/bin:$(pwd)/arm32-gcc/bin:${PATH}" \
        make -j$(nproc --all) O=out \
                              ARCH=arm64 \
-			     CC=clang \
-			     CROSS_COMPILE=aarch64-linux-gnu- \
-			     CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+                             CROSS_COMPILE=aarch64-elf- \
+                             CROSS_COMPILE_ARM32=arm-eabi-
    cp out/arch/arm64/boot/Image.gz-dtb AnyKernel
 }
 # Zipping
