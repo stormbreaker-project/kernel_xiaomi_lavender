@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "Cloning dependencies"
-git clone --depth=1 https://github.com/stormbreaker-project/android_kernel_xiaomi_lavender -b dtc  kernel
+git clone --depth=1 https://github.com/stormbreaker-project/android_kernel_xiaomi_lavender -b  oldcam-rebase  kernel
 cd kernel
 git clone https://github.com/arter97/arm64-gcc --depth=1
 git clone https://github.com/arter97/arm32-gcc --depth=1
