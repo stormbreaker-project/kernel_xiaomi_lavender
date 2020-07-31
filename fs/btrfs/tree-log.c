@@ -4404,13 +4404,8 @@ static int btrfs_log_trailing_hole(struct btrfs_trans_handle *trans,
 					struct btrfs_file_extent_item);
 
 		if (btrfs_file_extent_type(leaf, extent) ==
-		    BTRFS_FILE_EXTENT_INLINE) {
-			len = btrfs_file_extent_inline_len(leaf,
-							   path->slots[0],
-							   extent);
-			ASSERT(len == i_size);
+		    BTRFS_FILE_EXTENT_INLINE)
 			return 0;
-		}
 
 		len = btrfs_file_extent_num_bytes(leaf, extent);
 		/* Last extent goes beyond i_size, no need to log a hole. */
@@ -5696,6 +5691,21 @@ void btrfs_record_unlink_dir(struct btrfs_trans_handle *trans,
 	return;
 
 record:
+	BTRFS_I(dir)->last_unlink_trans = trans->transid;
+}
+
+/*
+ * Make sure that if someone attempts to fsync the parent directory of a deleted
+ * snapshot, it ends up triggering a transaction commit. This is to guarantee
+ * that after replaying the log tree of the parent directory's root we will not
+ * see the snapshot anymore and at log replay time we will not see any log tree
+ * corresponding to the deleted snapshot's root, which could lead to replaying
+ * it after replaying the log tree of the parent directory (which would replay
+ * the snapshot delete operation).
+ */
+void btrfs_record_snapshot_destroy(struct btrfs_trans_handle *trans,
+				   struct inode *dir)
+{
 	BTRFS_I(dir)->last_unlink_trans = trans->transid;
 }
 
