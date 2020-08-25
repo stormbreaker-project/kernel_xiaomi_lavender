@@ -123,7 +123,7 @@ config QCOM_RTB_SEPARATE_CPUS
 
 config TRACING
 	bool
-	select DEBUG_FS
+	select DEBUG_FS if !ANDROID
 	select RING_BUFFER
 	select STACKTRACE if STACKTRACE_SUPPORT
 	select TRACEPOINTS
@@ -430,7 +430,7 @@ config BLK_DEV_IO_TRACE
 	depends on SYSFS
 	depends on BLOCK
 	select RELAY
-	select DEBUG_FS
+	select DEBUG_FS if !ANDROID
 	select TRACEPOINTS
 	select GENERIC_TRACER
 	select STACKTRACE
