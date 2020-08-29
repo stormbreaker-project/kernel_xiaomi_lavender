@@ -635,7 +635,7 @@ config TCP_CONG_CDG
 
 config TCP_CONG_BBR
 	tristate "BBR TCP"
-	default n
+	default m
 	---help---
 
 	BBR (Bottleneck Bandwidth and RTT) TCP congestion control aims to
@@ -708,6 +708,7 @@ config DEFAULT_TCP_CONG
 	default "reno" if DEFAULT_RENO
 	default "dctcp" if DEFAULT_DCTCP
 	default "cdg" if DEFAULT_CDG
+        default "bbr" if DEFAULT_BBR
 	default "cubic"
 
 config TCP_MD5SIG
