@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "Cloning dependencies"
-git clone --depth=1 https://github.com/stormbreaker-project/android_kernel_xiaomi_lavender -b  hmp-lto  kernel
+git clone --depth=1 https://github.com/stormbreaker-project/android_kernel_xiaomi_lavender -b  bringup   kernel
 cd kernel
 git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
 git clone --depth=1 https://github.com/sohamxda7/AnyKernel3 AnyKernel
