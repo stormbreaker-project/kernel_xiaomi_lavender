@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 echo "Cloning dependencies"
-git clone --depth=1 https://github.com/stormbreaker-project/android_kernel_xiaomi_lavender -b  rel-hmp  kernel
+git clone --depth=1 https://github.com/stormbreaker-project/android_kernel_xiaomi_lavender -b  hmp-lto  kernel
 cd kernel
 git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
 git clone --depth=1 https://github.com/sohamxda7/AnyKernel3 AnyKernel
@@ -11,6 +11,9 @@ START=$(date +"%s")
 export CONFIG_PATH=$PWD/arch/arm64/configs/lavender-perf_defconfig
 PATH="${PWD}/clang/bin:$PATH"
 export ARCH=arm64
+export USE_CCACHE=1
+export CCACHE_EXEC=/usr/bin/ccache
+export LD="clang/bin/ld.lld"
 export KBUILD_BUILD_HOST=circleci
 export KBUILD_BUILD_USER="sohamsen"
 # sticker plox
@@ -52,6 +55,7 @@ function compile() {
        make -j$(nproc --all) O=out \
                              ARCH=arm64 \
 			     CC=clang \
+			     LD=ld.lld \
 			     CROSS_COMPILE=aarch64-linux-gnu- \
 			     CROSS_COMPILE_ARM32=arm-linux-gnueabi-
    cp out/arch/arm64/boot/Image.gz-dtb AnyKernel
