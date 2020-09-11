@@ -53,7 +53,6 @@
             		clock-frequency = <1843200000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
-			capacity-dmips-mhz = <530>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			qcom,lmh-dcvs = <&lmh_dcvs0>;
 			qcom,ea = <&ea0>;
@@ -85,7 +84,6 @@
             		clock-frequency = <1843200000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
-			capacity-dmips-mhz = <530>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			qcom,lmh-dcvs = <&lmh_dcvs0>;
 			qcom,ea = <&ea1>;
@@ -111,7 +109,6 @@
             		clock-frequency = <1843200000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
-			capacity-dmips-mhz = <530>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			qcom,lmh-dcvs = <&lmh_dcvs0>;
 			qcom,ea = <&ea2>;
@@ -137,7 +134,6 @@
             		clock-frequency = <1843200000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
-			capacity-dmips-mhz = <530>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			qcom,lmh-dcvs = <&lmh_dcvs0>;
 			qcom,ea = <&ea3>;
@@ -163,7 +159,6 @@
            	 	clock-frequency = <2208000000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile1>;
-			capacity-dmips-mhz = <1024>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 			qcom,lmh-dcvs = <&lmh_dcvs1>;
 			qcom,ea = <&ea4>;
@@ -193,7 +188,6 @@
             		clock-frequency = <2208000000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile2>;
-			capacity-dmips-mhz = <1024>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 			qcom,lmh-dcvs = <&lmh_dcvs1>;
 			qcom,ea = <&ea5>;
@@ -219,7 +213,6 @@
             		clock-frequency = <2208000000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile3>;
-			capacity-dmips-mhz = <1024>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 			qcom,lmh-dcvs = <&lmh_dcvs1>;
 			qcom,ea = <&ea6>;
@@ -245,7 +238,6 @@
             		clock-frequency = <2208000000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile4>;
-			capacity-dmips-mhz = <1024>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 			qcom,lmh-dcvs = <&lmh_dcvs1>;
 			qcom,ea = <&ea7>;
@@ -308,37 +300,44 @@
 
  		CPU_COST_0: core-cost0 {
  			busy-cost-data = <
- 				1843200 1024
+ 				1536000	265
+ 				1747200	278
+ 				1843200	285
  			>;
  			idle-cost-data = <
- 				20 16 12 8
+ 				20 16 10 8
  			>;
  		};
+
  		CPU_COST_1: core-cost1 {
  			busy-cost-data = <
- 				1747200 1167
-				1958400 1163
-				2150400 1126
-				2208000 1076
+ 				1747200	1759
+ 				1958400	1754
+ 				2150400	1705
+ 				2208000	1632
  			>;
  			idle-cost-data = <
  				100 80 60 40
  			>;
  		};
+
  		CLUSTER_COST_0: cluster-cost0 {
  			busy-cost-data = <
- 				1843200 62
+ 				1536000	9
+				1747200	11
+ 				1843200	13
  			>;
  			idle-cost-data = <
  				4 3 2 1
  			>;
  		};
+
  		CLUSTER_COST_1: cluster-cost1 {
  			busy-cost-data = <
- 				1747200	272
-				1958400	363
- 				2150400	519
- 				2208000	585
+ 				1747200	25
+ 				1958400	31
+ 				2150400	37
+ 				2208000	44
  			>;
  			idle-cost-data = <
  				4 3 2 1
@@ -1457,6 +1456,8 @@
 		qcom,governor-per-policy;
 
 		qcom,cpufreq-table-0 =
+			< 1536000 >,
+			< 1747200 >,
 			< 1843200 >;
 
 		qcom,cpufreq-table-4 =
