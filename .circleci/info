@@ -1,0 +1,17 @@
+#!/bin/bash
+# sticker plox
+function sticker() {
+        curl -s -X POST "https://api.telegram.org/bot$token/sendSticker" \
+                        -d sticker="CAACAgEAAxkBAAEo8Q1fdXY17QVC8Ct0hXd26EWxQvH0PQACQAADvi-SJRKEKYgSvHu9GwQ" \
+                        -d chat_id="$chat_id"
+}
+# Send info plox
+function sendinfo() {
+        curl -s -X POST "https://api.telegram.org/bot$token/sendMessage" \
+                        -d chat_id="$chat_id" \
+                        -d "disable_web_page_preview=true" \
+                        -d "parse_mode=html" \
+                        -d text="<b>Predator Stormbreaker</b> new build started%0AStarted on <code>Circle CI</code>%0AFor device Redmi Note 7/7S%0AOn branch <code>${CIRCLE_BRANCH}</code>%0AUnder commit <code>$(git log --pretty=format:'"%h : %s"' -1)</code>%0AStarted on <code>$(TZ=Asia/Kuala_Lumpur date)</code>%0A<b>CI Workflow information:</b> <a href='https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}'>here</a>"
+}
+sticker
+sendinfo
