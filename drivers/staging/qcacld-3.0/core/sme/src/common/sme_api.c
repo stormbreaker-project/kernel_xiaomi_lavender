@@ -1675,6 +1675,7 @@ QDF_STATUS sme_hdd_ready_ind(tHalHandle hHal)
 		msg->csr_roam_synch_cb = csr_roam_synch_callback;
 		msg->sme_msg_cb = sme_process_msg_callback;
 		msg->stop_roaming_cb = sme_stop_roaming;
+		msg->csr_roam_pmkid_req_cb = csr_roam_pmkid_req_callback;
 
 		if (eSIR_FAILURE != u_mac_post_ctrl_msg(hHal, (tSirMbMsg *)
 							msg))
@@ -8042,7 +8043,7 @@ QDF_STATUS sme_8023_multicast_list(tHalHandle hHal, uint8_t sessionId,
 	if (!CSR_IS_SESSION_VALID(pMac, sessionId) ||
 			(!csr_is_conn_state_infra(pMac, sessionId) &&
 			 !csr_is_ndi_started(pMac, sessionId))) {
-		QDF_TRACE(QDF_MODULE_ID_SME, QDF_TRACE_LEVEL_ERROR,
+		QDF_TRACE(QDF_MODULE_ID_SME, QDF_TRACE_LEVEL_DEBUG,
 			  "%s: Invalid session: %d", __func__, sessionId);
 		return QDF_STATUS_E_FAILURE;
 	}
@@ -13973,21 +13974,12 @@ QDF_STATUS sme_update_dsc_pto_up_mapping(tHalHandle hHal,
 	}
 	for (i = 0; i < SME_QOS_WMM_UP_MAX; i++) {
 		for (j = pSession->QosMapSet.dscp_range[i][0];
-			j <= pSession->QosMapSet.dscp_range[i][1];
-			j++) {
-			if ((pSession->QosMapSet.dscp_range[i][0] == 255)
-				&& (pSession->QosMapSet.dscp_range[i][1] ==
-							255)) {
-				QDF_TRACE(QDF_MODULE_ID_SME,
-					QDF_TRACE_LEVEL_DEBUG,
-					FL("User Priority %d isn't used"), i);
-				break;
-			}
+			j <= pSession->QosMapSet.dscp_range[i][1] &&
+			j <= WLAN_MAX_DSCP; j++)
 			dscpmapping[j] = i;
-		}
 	}
 	for (i = 0; i < pSession->QosMapSet.num_dscp_exceptions; i++)
-		if (pSession->QosMapSet.dscp_exceptions[i][0] != 255)
+		if (pSession->QosMapSet.dscp_exceptions[i][0] <= WLAN_MAX_DSCP)
 			dscpmapping[pSession->QosMapSet.dscp_exceptions[i][0]] =
 				pSession->QosMapSet.dscp_exceptions[i][1];
 

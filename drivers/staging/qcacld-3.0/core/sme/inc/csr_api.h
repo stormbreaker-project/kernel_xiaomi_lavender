@@ -541,6 +541,7 @@ typedef enum {
 	eCSR_ROAM_SAE_COMPUTE,
 	/* LFR3 Roam sync complete */
 	eCSR_ROAM_SYNCH_COMPLETE,
+	eCSR_ROAM_FIPS_PMK_REQUEST,
 } eRoamCmdStatus;
 
 /* comment inside indicates what roaming callback gets */
@@ -1408,7 +1409,7 @@ typedef struct tagCsrConfigParam {
 	uint8_t fils_max_chan_guard_time;
 	uint16_t pkt_err_disconn_th;
 	bool is_bssid_hint_priority;
-	bool is_force_1x1;
+	uint8_t is_force_1x1;
 	uint16_t num_11b_tx_chains;
 	uint16_t num_11ag_tx_chains;
 	uint32_t disallow_duration;
@@ -1430,6 +1431,7 @@ typedef struct tagCsrConfigParam {
 	uint32_t btm_max_attempt_cnt;
 	uint32_t btm_sticky_time;
 	uint32_t btm_query_bitmask;
+	bool disable_4way_hs_offload;
 } tCsrConfigParam;
 
 /* Tush */

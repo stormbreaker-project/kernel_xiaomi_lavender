@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2019 The Linux Foundation. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -225,6 +225,14 @@ typedef struct hdd_ap_ctx_s hdd_ap_ctx_t;
  */
 bool hdd_is_connecting(hdd_station_ctx_t *hdd_sta_ctx);
 
+/**
+ * hdd_is_disconnecting() - Function to check disconnection progress
+ * @hdd_sta_ctx:    pointer to global HDD Station context
+ *
+ * Return: true if disconnecting, false otherwise
+ */
+bool hdd_is_disconnecting(hdd_station_ctx_t *hdd_sta_ctx);
+
 /*
  * hdd_is_fils_connection: API to determine if connection is FILS
  * @adapter: hdd adapter
@@ -259,6 +267,16 @@ tSirRFBand hdd_conn_get_connected_band(hdd_station_ctx_t *pHddStaCtx);
  * Return: hdd adpater for which connection is in progress
  */
 hdd_adapter_t *hdd_get_sta_connection_in_progress(hdd_context_t *hdd_ctx);
+
+/**
+ * hdd_abort_ongoing_sta_connection() - Disconnect the sta for which the
+ * connection is in progress.
+ *
+ * @hdd_ctx: hdd context
+ *
+ * Return: none
+ */
+void hdd_abort_ongoing_sta_connection(hdd_context_t *hdd_ctx);
 
 /**
  * hdd_sme_roam_callback() - hdd sme roam callback

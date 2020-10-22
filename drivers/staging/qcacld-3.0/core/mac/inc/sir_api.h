@@ -161,6 +161,18 @@ enum sir_conn_update_reason {
 	SIR_UPDATE_REASON_PRE_CAC,
 };
 
+/**
+ * enum force_1x1_type - enum to specify the type of forced 1x1 ini provided.
+ * @FORCE_1X1_DISABLED: even if the AP is present in OUI, 1x1 will not be forced
+ * @FORCE_1X1_ENABLED_FOR_AS: If antenna sharing supported, then only do 1x1.
+ * @FORCE_1X1_ENABLED_FORCED: If AP present in OUI, force 1x1 connection.
+ */
+enum force_1x1_type {
+	FORCE_1X1_DISABLED,
+	FORCE_1X1_ENABLED_FOR_AS,
+	FORCE_1X1_ENABLED_FORCED,
+};
+
 typedef enum {
 	eSIR_EXTSCAN_INVALID,
 	eSIR_EXTSCAN_START_RSP,
@@ -519,6 +531,7 @@ typedef struct sSirSmeReadyReq {
 	void *pe_roam_synch_cb;
 	void *sme_msg_cb;
 	void *stop_roaming_cb;
+	void *csr_roam_pmkid_req_cb;
 } tSirSmeReadyReq, *tpSirSmeReadyReq;
 
 /**
@@ -924,6 +937,11 @@ typedef struct sSirChannelList {
 	uint8_t channelNumber[SIR_ESE_MAX_MEAS_IE_REQS];
 } tSirChannelList, *tpSirChannelList;
 
+struct sir_channel_list {
+	uint8_t numChannels;
+	uint8_t channelNumber[];
+};
+
 typedef struct sSirDFSChannelList {
 	uint32_t timeStamp[SIR_MAX_24G_5G_CHANNEL_RANGE];
 
@@ -1057,7 +1075,7 @@ typedef struct sSirSmeScanReq {
 	uint32_t oui_field_offset;
 
 	/* channelList MUST be the last field of this structure */
-	tSirChannelList channelList;
+	struct sir_channel_list channelList;
 
 	/*-----------------------------
 	   tSirSmeScanReq....
@@ -3647,6 +3665,14 @@ struct mawc_params {
 	uint8_t mawc_roam_rssi_low_adjust;
 };
 
+/**
+ * struct roam_sync_timeout_timer_info - Info related to roam sync timer
+ * @vdev_id: Vdev id for which host waiting roam sync ind from fw
+ */
+struct roam_sync_timeout_timer_info {
+	uint8_t vdev_id;
+};
+
 typedef struct sSirRoamOffloadScanReq {
 	uint16_t message_type;
 	uint16_t length;
@@ -4331,7 +4357,7 @@ typedef struct sSirScanOffloadReq {
 	uint32_t oui_field_len;
 	uint32_t oui_field_offset;
 
-	tSirChannelList channelList;
+	struct sir_channel_list channelList;
 	/*-----------------------------
 	  sSirScanOffloadReq....
 	  -----------------------------

@@ -1215,12 +1215,8 @@ static QDF_STATUS lim_send_hal_start_scan_offload_req(tpAniSirGlobal pMac,
 	    pe_debug("No IEs in the scan request from supplicant");
 	}
 
-	/**
-	 * The tSirScanOffloadReq will reserve the space for first channel,
-	 * so allocate the memory for (numChannels - 1) and uIEFieldLen
-	 */
 	len = sizeof(tSirScanOffloadReq) +
-		(pScanReq->channelList.numChannels - 1) +
+		pScanReq->channelList.numChannels +
 		pScanReq->uIEFieldLen + pScanReq->oui_field_len;
 
 	pScanOffloadReq = qdf_mem_malloc(len);
@@ -1328,7 +1324,7 @@ static QDF_STATUS lim_send_hal_start_scan_offload_req(tpAniSirGlobal pMac,
 			     pScanReq->probe_req_ie_bitmap,
 			     PROBE_REQ_BITMAP_LEN * sizeof(uint32_t));
 	pScanOffloadReq->oui_field_offset = sizeof(tSirScanOffloadReq) +
-				(pScanOffloadReq->channelList.numChannels - 1) +
+				pScanOffloadReq->channelList.numChannels +
 				pScanOffloadReq->uIEFieldLen;
 	if (pScanOffloadReq->num_vendor_oui != 0) {
 		qdf_mem_copy(
@@ -6011,6 +6007,8 @@ void lim_send_chan_switch_action_frame(tpAniSirGlobal mac_ctx,
 
 }
 
+#define MAX_WAKELOCK_FOR_CSA         5000
+
 /**
  * lim_process_sme_dfs_csa_ie_request() - process sme dfs csa ie req
  *
@@ -6130,6 +6128,9 @@ static void lim_process_sme_dfs_csa_ie_request(tpAniSirGlobal mac_ctx,
 		dfs_csa_ie_req->ch_params.center_freq_seg0;
 skip_vht:
 	/* Send CSA IE request from here */
+	qdf_wake_lock_timeout_acquire(&session_entry->ap_ecsa_wakelock,
+				      MAX_WAKELOCK_FOR_CSA);
+	qdf_runtime_pm_prevent_suspend(&session_entry->ap_ecsa_runtime_lock);
 	lim_send_dfs_chan_sw_ie_update(mac_ctx, session_entry);
 
 	if (dfs_csa_ie_req->ch_params.ch_width == CH_WIDTH_80MHZ)

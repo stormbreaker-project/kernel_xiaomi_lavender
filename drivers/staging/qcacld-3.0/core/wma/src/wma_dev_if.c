@@ -553,6 +553,29 @@ wma_ol_txrx_vdev_detach(tp_wma_handle wma_handle,
 	iface->is_vdev_valid = false;
 }
 
+/*
+ * wma_handle_monitor_mode_vdev_detach() - Stop and down monitor mode vdev
+ * @wma_handle: wma handle
+ * @vdev_id: used to get wma interface txrx node
+ *
+ * Monitor mode is unconneted mode, so do explicit vdev stop and down
+ *
+ * Return: None
+ */
+static void wma_handle_monitor_mode_vdev_detach(tp_wma_handle wma,
+						uint8_t vdev_id)
+{
+	if (wma_send_vdev_stop_to_fw(wma, vdev_id)) {
+		WMA_LOGE("%s: %d Failed to send vdev stop", __func__, __LINE__);
+		wma_remove_vdev_req(wma, vdev_id,
+				    WMA_TARGET_REQ_TYPE_VDEV_STOP);
+	}
+
+	if (wma_send_vdev_down_to_fw(wma, vdev_id) != QDF_STATUS_SUCCESS)
+		WMA_LOGE("Failed to send vdev down cmd: vdev %d", vdev_id);
+}
+
+
 static QDF_STATUS wma_handle_vdev_detach(tp_wma_handle wma_handle,
 			struct del_sta_self_params *del_sta_self_req_param,
 			uint8_t generate_rsp)
@@ -561,6 +584,9 @@ static QDF_STATUS wma_handle_vdev_detach(tp_wma_handle wma_handle,
 	uint8_t vdev_id = del_sta_self_req_param->session_id;
 	struct wma_txrx_node *iface = &wma_handle->interfaces[vdev_id];
 	struct wma_target_req *msg = NULL;
+
+	if (cds_get_conparam() == QDF_GLOBAL_MONITOR_MODE)
+		wma_handle_monitor_mode_vdev_detach(wma_handle, vdev_id);
 
 	status = wmi_unified_vdev_delete_send(wma_handle->wmi_handle, vdev_id);
 	if (QDF_IS_STATUS_ERROR(status)) {
@@ -664,9 +690,10 @@ QDF_STATUS wma_vdev_detach(tp_wma_handle wma_handle,
 	if (iface->type == WMI_VDEV_TYPE_STA)
 		wma_pno_stop(wma_handle, vdev_id);
 
-	/* P2P Device */
-	if ((iface->type == WMI_VDEV_TYPE_AP) &&
-	    (iface->sub_type == WMI_UNIFIED_VDEV_SUBTYPE_P2P_DEVICE)) {
+	if (((iface->type == WMI_VDEV_TYPE_AP) &&
+	    (iface->sub_type == WMI_UNIFIED_VDEV_SUBTYPE_P2P_DEVICE)) ||
+	    (iface->type == WMI_VDEV_TYPE_OCB) ||
+	    (iface->type == WMI_VDEV_TYPE_MONITOR)) {
 		status = wma_self_peer_remove(wma_handle,
 					pdel_sta_self_req_param, generateRsp);
 		if ((status != QDF_STATUS_SUCCESS) && generateRsp) {
@@ -1897,6 +1924,10 @@ int wma_vdev_stop_resp_handler(void *handle, uint8_t *cmd_param_info,
 		return -EINVAL;
 	}
 
+	/* Ignore stop_response in Monitor mode */
+	if (cds_get_conparam() == QDF_GLOBAL_MONITOR_MODE)
+		return  QDF_STATUS_SUCCESS;
+
 	iface = &wma->interfaces[resp_event->vdev_id];
 
 	/* vdev in stopped state, no more waiting for key */
@@ -2066,6 +2097,7 @@ ol_txrx_vdev_handle wma_vdev_attach(tp_wma_handle wma_handle,
 	u_int8_t vdev_id;
 	struct sir_set_tx_rx_aggregation_size tx_rx_aggregation_size;
 	struct sir_set_tx_aggr_sw_retry_threshold tx_aggr_sw_retry_threshold;
+	uint32_t flags;
 
 	WMA_LOGD("mac %pM, vdev_id %hu, type %d, sub_type %d, nss 2g %d, 5g %d",
 		self_sta_req->self_mac_addr, self_sta_req->session_id,
@@ -2330,11 +2362,14 @@ ol_txrx_vdev_handle wma_vdev_attach(tp_wma_handle wma_handle,
 	if ((self_sta_req->type == WMI_VDEV_TYPE_STA) &&
 	    (self_sta_req->sub_type == 0)) {
 		wma_handle->roam_offload_enabled = true;
+		flags = (WMI_ROAM_FW_OFFLOAD_ENABLE_FLAG |
+					WMI_ROAM_BMISS_FINAL_SCAN_ENABLE_FLAG);
+		if (self_sta_req->disable_4way_hs_offload)
+			flags |= WMI_VDEV_PARAM_SKIP_ROAM_EAPOL_4WAY_HANDSHAKE;
 		ret = wma_vdev_set_param(wma_handle->wmi_handle,
 					self_sta_req->session_id,
 					WMI_VDEV_PARAM_ROAM_FW_OFFLOAD,
-					(WMI_ROAM_FW_OFFLOAD_ENABLE_FLAG |
-					WMI_ROAM_BMISS_FINAL_SCAN_ENABLE_FLAG));
+					flags);
 		if (QDF_IS_STATUS_ERROR(ret))
 			WMA_LOGE("Failed to set WMI_VDEV_PARAM_ROAM_FW_OFFLOAD");
 
@@ -2714,16 +2749,6 @@ QDF_STATUS wma_vdev_start(tp_wma_handle wma,
 		params.beacon_intval = req->beacon_intval;
 		params.dtim_period = req->dtim_period;
 
-		/* Copy the SSID */
-		if (req->ssid.length) {
-			params.ssid.length = req->ssid.length;
-			if (req->ssid.length < sizeof(cmd->ssid.ssid))
-				temp_ssid_len = req->ssid.length;
-			else
-				temp_ssid_len = sizeof(cmd->ssid.ssid);
-			qdf_mem_copy(params.ssid.mac_ssid, req->ssid.ssId,
-				     temp_ssid_len);
-		}
 
 		params.pmf_enabled = req->pmf_enabled;
 		params.ldpc_rx_enabled = req->ldpc_rx_enabled;
@@ -2734,6 +2759,17 @@ QDF_STATUS wma_vdev_start(tp_wma_handle wma,
 		if (req->ldpc_rx_enabled)
 			temp_flags |= WMI_UNIFIED_VDEV_START_LDPC_RX_ENABLED;
 	}
+	/* Copy the SSID */
+	if (req->ssid.length) {
+		params.ssid.length = req->ssid.length;
+		if (req->ssid.length < sizeof(cmd->ssid.ssid))
+			temp_ssid_len = req->ssid.length;
+		else
+			temp_ssid_len = sizeof(cmd->ssid.ssid);
+		qdf_mem_copy(params.ssid.mac_ssid, req->ssid.ssId,
+			     temp_ssid_len);
+	}
+
 	params.hidden_ssid = req->hidden_ssid;
 	if (req->hidden_ssid)
 		temp_flags |= WMI_UNIFIED_VDEV_START_HIDDEN_SSID;
