@@ -1,0 +1,63 @@
+#!/bin/bash
+echo "Cloning dependencies"
+git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
+git clone --depth=1 https://github.com/z4nyx/AnyKernel3.git AnyKernel
+echo "Done"
+KERNEL_DIR=$(pwd)
+PATH="${PWD}/clang/bin:$PATH"
+IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
+SHA=$(echo "$CIRCLE_SHA1" | cut -c 1-8)
+START2=$(date +"%s")
+export ARCH=arm64
+export KBUILD_BUILD_USER=z4nyx
+export KBUILD_BUILD_HOST=circleci
+export CCV=$(clang --version | head -n 1 | perl -pe 's/\(git.*?\)//gs' | sed -e 's/  */ /g')
+export LLDV=$(ld.lld --version | head -n 1 | perl -pe 's/\(git.*?\)//gs' | sed 's/(compatible with [^)]*)//' | sed 's/[[:space:]]*$//')
+# Push kernel to channel
+function push() {
+    cd AnyKernel
+    curl -F document=@"$(echo *.zip)" "https://api.telegram.org/bot$token/sendDocument" \
+        -F chat_id="$chat_id" \
+        -F "disable_web_page_preview=true" \
+        -F "parse_mode=html" \
+        -F caption="Build took $(($DIFF2 / 60)) minute(s) and $(($DIFF2 % 60)) second(s). | <b>$CCV , $LLDV</b>"
+}
+# Fin Error
+function finerr() {
+    curl -s -X POST "https://api.telegram.org/bot$token/sendMessage" \
+        -d chat_id="$chat_id" \
+        -d "disable_web_page_preview=true" \
+        -d "parse_mode=markdown" \
+        -d text="Build throw an error(s)"
+    exit 1
+}
+# Compile plox
+function compile() {
+    echo "CONFIG_XIAOMI_NEWCAM=y" >> arch/arm64/configs/lavender-perf_defconfig
+    make -s -j$(nproc --all) O=out lavender-perf_defconfig
+    make -j$(nproc --all) O=out \
+                          CC=clang \
+                          CROSS_COMPILE=aarch64-linux-gnu- \
+                          LD=ld.lld \
+                          AR=llvm-ar \
+                          NM=llvm-nm \
+                          OBJCOPY=llvm-objcopy \
+                          OBJDUMP=llvm-objdump \
+                          STRIP=llvm-strip
+        if ! [ -a "$IMAGE" ]; then
+            finerr
+            exit 1
+        fi
+    cp ${IMAGE} AnyKernel/
+}
+# Zipping
+function zipping() {
+    cd AnyKernel || exit 1
+    zip -r9 Predator-SB-newcam-${SHA}.zip *
+    cd ..
+}
+compile
+zipping
+END2=$(date +"%s")
+DIFF2=$(($END2 - $START2))
+push
