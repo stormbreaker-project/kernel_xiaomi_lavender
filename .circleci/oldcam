@@ -1,14 +1,16 @@
 #!/bin/bash
 echo "Cloning dependencies"
-git clone https://github.com/z4nyx/AnyKernel3.git --depth=1 AnyKernel
+git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
+git clone --depth=1 https://github.com/z4nyx/AnyKernel3.git AnyKernel
 echo "Done"
 KERNEL_DIR=$(pwd)
+PATH="${PWD}/clang/bin:$PATH"
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
 SHA=$(echo "$CIRCLE_SHA1" | cut -c 1-8)
-START=$(date +"%s")
+START1=$(date +"%s")
 export ARCH=arm64
 export KBUILD_BUILD_USER=z4nyx
-export KBUILD_BUILD_HOST=Stormbreaker-HQ
+export KBUILD_BUILD_HOST=circleci
 export CCV=$(clang --version | head -n 1 | perl -pe 's/\(git.*?\)//gs' | sed -e 's/  */ /g')
 export LLDV=$(ld.lld --version | head -n 1 | perl -pe 's/\(git.*?\)//gs' | sed 's/(compatible with [^)]*)//' | sed 's/[[:space:]]*$//')
 # Push kernel to channel
@@ -18,7 +20,7 @@ function push() {
         -F chat_id="$chat_id" \
         -F "disable_web_page_preview=true" \
         -F "parse_mode=html" \
-        -F caption="Build took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | <b>$CCV , $LLDV</b>"
+        -F caption="Build took $(($DIFF1 / 60)) minute(s) and $(($DIFF1 % 60)) second(s). | <b>$CCV , $LLDV</b>"
 }
 # Fin Error
 function finerr() {
@@ -50,11 +52,11 @@ function compile() {
 # Zipping
 function zipping() {
     cd AnyKernel || exit 1
-    zip -r9 Predator-StormBreaker-lavender-${SHA}.zip *
+    zip -r9 Predator-SB-oldcam-${SHA}.zip *
     cd ..
 }
 compile
 zipping
-END=$(date +"%s")
-DIFF=$(($END - $START))
+END1=$(date +"%s")
+DIFF1=$(($END1 - $START1))
 push

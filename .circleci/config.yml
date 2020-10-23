@@ -3,21 +3,29 @@ version: 2.0
 jobs:
   info:
     docker:
-      - image: najahi/oven:proton
+      - image: z4nyx/docker:latest
     steps:
       - run: git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
       - run: bash .circleci/info
 
-  build:
+  oldcam:
     docker:
-      - image: najahi/oven:proton
+      - image: z4nyx/docker:latest
     steps:
       - run: git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
-      - run: bash .circleci/build
+      - run: bash .circleci/oldcam
+
+  newcam:
+    docker:
+      - image: z4nyx/docker:latest
+    steps:
+      - run: git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
+      - run: bash .circleci/newcam
 
 workflows:
   version: 2
   build:
     jobs:
       - info
-      - build
+      - oldcam
+      - newcam
