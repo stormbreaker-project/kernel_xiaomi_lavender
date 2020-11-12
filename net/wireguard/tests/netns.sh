@@ -30,6 +30,7 @@ netns0="wg-test-$$-0"
 netns1="wg-test-$$-1"
 netns2="wg-test-$$-2"
 pretty() { echo -e "\x1b[32m\x1b[1m[+] ${1:+NS$1: }${2}\x1b[0m" >&3; }
+compatwarn() { echo -e "\x1b[31m\x1b[1m[-] Tolerated failure: $1\x1b[0m" >&3; }
 pp() { pretty "" "$*"; "$@"; }
 maybe_exec() { if [[ $BASHPID -eq $$ ]]; then "$@"; else exec "$@"; fi; }
 n0() { pretty 0 "$*"; maybe_exec ip netns exec $netns0 "$@"; }
@@ -281,6 +282,28 @@ n2 ping -W 1 -c 1 192.168.241.1
 pp sleep 3
 n2 ping -W 1 -c 1 192.168.241.1
 n1 wg set wg0 peer "$pub2" persistent-keepalive 0
+
+# Test that sk_bound_dev_if works
+n1 ping -I wg0 -c 1 -W 1 192.168.241.2
+# What about when the mark changes and the packet must be rerouted?
+n1 iptables -t mangle -I OUTPUT -j MARK --set-xmark 1
+n1 ping -c 1 -W 1 192.168.241.2 # First the boring case
+n1 ping -I wg0 -c 1 -W 1 192.168.241.2 || compatwarn "sk_bound_dev_if test failed, but fix not backportable in compat layer" # Then the sk_bound_dev_if case
+n1 iptables -t mangle -D OUTPUT -j MARK --set-xmark 1
+
+# Test that onion routing works, even when it loops
+n1 wg set wg0 peer "$pub3" allowed-ips 192.168.242.2/32 endpoint 192.168.241.2:5
+ip1 addr add 192.168.242.1/24 dev wg0
+ip2 link add wg1 type wireguard
+ip2 addr add 192.168.242.2/24 dev wg1
+n2 wg set wg1 private-key <(echo "$key3") listen-port 5 peer "$pub1" allowed-ips 192.168.242.1/32
+ip2 link set wg1 up
+n1 ping -W 1 -c 1 192.168.242.2
+ip2 link del wg1
+n1 wg set wg0 peer "$pub3" endpoint 192.168.242.2:5
+! n1 ping -W 1 -c 1 192.168.242.2 || false # Should not crash kernel
+n1 wg set wg0 peer "$pub3" remove
+ip1 addr del 192.168.242.1/24 dev wg0
 
 # Do a wg-quick(8)-style policy routing for the default route, making sure vethc has a v6 address to tease out bugs.
 ip1 -6 addr add fc00::9/96 dev vethc
