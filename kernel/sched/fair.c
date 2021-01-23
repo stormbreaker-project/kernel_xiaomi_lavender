@@ -8266,7 +8266,7 @@ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
 		mcc->cpu = cpu;
 #ifdef CONFIG_SCHED_DEBUG
 		raw_spin_unlock_irqrestore(&mcc->lock, flags);
-		printk_deferred(KERN_INFO "CPU%d: update max cpu_capacity %lu\n",
+		pr_debug(KERN_INFO "CPU%d: update max cpu_capacity %lu\n",
 				cpu, capacity);
 		goto skip_unlock;
 #endif
