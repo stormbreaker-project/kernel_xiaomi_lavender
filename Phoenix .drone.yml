@@ -1,0 +1,16 @@
+kind: pipeline
+type: docker
+name: Kernel Builder
+clone:
+  depth: 1
+
+steps:
+- name: Build Kernel
+  image: z4nyx/docker:latest
+  environment:
+    token:
+      from_secret: token
+    chat_id:
+      from_secret: chat_id
+  commands:
+  - bash build.sh
