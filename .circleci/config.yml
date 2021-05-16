@@ -6,8 +6,8 @@ jobs:
    steps:
       - run:
           command: |
-           git config --global user.name "sohamxda7"
-           git config --global user.email "sensoham135@gmail.com"
+           git config --global user.name "ehtesham01"
+           git config --global user.email "ehteshammalik4@gmail.com"
            git config --global color.ui false
            git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
            bash .circleci/build.sh
