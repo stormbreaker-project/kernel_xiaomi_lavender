@@ -1,8 +1,8 @@
-version: 2.1
+version: 1.1
 jobs:
   compile:
    docker:
-      - image: z4nyx/docker:latest
+      - image: abhi/test:latest
    steps:
       - run:
           command: |
@@ -12,7 +12,7 @@ jobs:
            git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
            bash .circleci/build.sh
 workflows:
-  version: 2.1
+  version: 1.1
   cooking:
     jobs:
       - compile
