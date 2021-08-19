@@ -1,4 +1,4 @@
-version: 2.1
+version: 1.1
 jobs:
   compile:
    docker:
@@ -6,13 +6,11 @@ jobs:
    steps:
       - run:
           command: |
-           git config --global user.name "sohamxda7"
-           git config --global user.email "sensoham135@gmail.com"
            git config --global color.ui false
-           git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} .
-           bash .circleci/build.sh
+           git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} lavender
+           bash lavender/circleci/build.sh
 workflows:
-  version: 2.1
+  version: 1.1
   cooking:
     jobs:
       - compile
