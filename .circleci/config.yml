@@ -1,8 +1,8 @@
-version: 2.1
+version: 1.1
 jobs:
   compile:
    docker:
-      - image: z4nyx/docker:latest
+      - image: abhi/test:latest
    steps:
       - run:
           command: |
