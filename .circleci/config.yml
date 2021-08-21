@@ -1,8 +1,8 @@
-version: 1.1
+version: 2.1
 jobs:
   compile:
    docker:
-      - image: z4nyx/docker:latest
+      - image: ABHI/XXY:latest
    steps:
       - run:
           command: |
@@ -10,7 +10,7 @@ jobs:
            git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} -b ${CIRCLE_BRANCH} lavender
            bash lavender/circleci/build.sh
 workflows:
-  version: 1.1
+  version: 2.1
   cooking:
     jobs:
       - compile
