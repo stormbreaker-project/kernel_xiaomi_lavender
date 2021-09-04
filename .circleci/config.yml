@@ -7,7 +7,7 @@ jobs:
       - run:
           command: |
            git clone --depth=1 https://github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} script
-           bash script/.circleci/build.sh
+           bash lavender/.circleci/build.sh
 workflows:
   version: 2.1
   cooking:
