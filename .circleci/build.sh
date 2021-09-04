@@ -4,10 +4,10 @@ git clone --depth=1 $kernel_source $device_codename
 git clone --depth=1 https://github.com/xyz-prjkt/xRageTC-clang clang
 
 # Main
-KERNEL_NAME=$kernel_name # IMPORTANT ! Declare your kernel name
+KERNEL_NAME=$Storm # IMPORTANT ! Declare your kernel name
 KERNEL_ROOTDIR=$(pwd)/$device_codename # IMPORTANT ! Fill with your kernel source root directory.
-DEVICE_CODENAME=$device_codename # IMPORTANT ! Declare your device codename
-DEVICE_DEFCONFIG=$ # IMPORTANT ! Declare your kernel source defconfig file here.
+DEVICE_CODENAME=$Redmi note 7 # IMPORTANT ! Declare your device codename
+DEVICE_DEFCONFIG=$lavender-perf_defconfig # IMPORTANT ! Declare your kernel source defconfig file here.
 CLANG_ROOTDIR=$(pwd)/clang # IMPORTANT! Put your clang directory here.
 export KBUILD_BUILD_USER=xyzuan # Change with your own name or else.
 export KBUILD_BUILD_HOST=xyzscape-ci # Change with your own hostname.
@@ -23,9 +23,9 @@ echo ================================================
 echo xKernelCompiler CircleCI Edition
 echo version : rev1.5 - gaspoll
 echo ================================================
-echo BUILDER NAME = ${KBUILD_BUILD_USER}
-echo BUILDER HOSTNAME = ${KBUILD_BUILD_HOST}
-echo DEVICE_DEFCONFIG = ${DEVICE_DEFCONFIG}
+echo BUILDER NAME = ${ABHI}
+echo BUILDER HOSTNAME = ${XXY}
+echo DEVICE_DEFCONFIG = ${lavender-perf_defconfig}
 echo CLANG_VERSION = $(${CLANG_ROOTDIR}/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g')
 echo CLANG_ROOTDIR = ${CLANG_ROOTDIR}
 echo KERNEL_ROOTDIR = ${KERNEL_ROOTDIR}
