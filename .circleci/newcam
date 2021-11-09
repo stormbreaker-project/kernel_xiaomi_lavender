@@ -1,15 +1,17 @@
 #!/bin/bash
 echo "Cloning dependencies"
-git clone --depth=1 https://github.com/kdrag0n/proton-clang clang
-git clone --depth=1 https://github.com/z4nyx/AnyKernel3.git AnyKernel
+git clone --depth=1 https://github.com/sohamxda7/llvm-stable  clang
+git clone https://github.com/sohamxda7/llvm-stable -b gcc64 --depth=1 gcc
+git clone https://github.com/sohamxda7/llvm-stable -b gcc32  --depth=1 gcc32
+git clone --depth=1 https://github.com/stormbreaker-project/AnyKernel3 AnyKernel
 echo "Done"
 KERNEL_DIR=$(pwd)
-PATH="${PWD}/clang/bin:$PATH"
+PATH="${KERNEL_DIR}/clang/bin:${KERNEL_DIR}/gcc/bin:${KERNEL_DIR}/gcc32/bin:${PATH}"
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
 SHA=$(echo "$CIRCLE_SHA1" | cut -c 1-8)
 START2=$(date +"%s")
 export ARCH=arm64
-export KBUILD_BUILD_USER=z4nyx
+export KBUILD_BUILD_USER=builder
 export KBUILD_BUILD_HOST=circleci
 export CCV=$(clang --version | head -n 1 | perl -pe 's/\(git.*?\)//gs' | sed -e 's/  */ /g')
 export LLDV=$(ld.lld --version | head -n 1 | perl -pe 's/\(git.*?\)//gs' | sed 's/(compatible with [^)]*)//' | sed 's/[[:space:]]*$//')
@@ -36,14 +38,12 @@ function compile() {
     echo "CONFIG_XIAOMI_NEWCAM=y" >> arch/arm64/configs/lavender-perf_defconfig
     make -s -j$(nproc --all) O=out lavender-perf_defconfig
     make -j$(nproc --all) O=out \
-                          CC=clang \
-                          CROSS_COMPILE=aarch64-linux-gnu- \
-                          LD=ld.lld \
-                          AR=llvm-ar \
-                          NM=llvm-nm \
-                          OBJCOPY=llvm-objcopy \
-                          OBJDUMP=llvm-objdump \
-                          STRIP=llvm-strip
+                        ARCH=arm64 \
+                    	CC=clang \
+                    	CLANG_TRIPLE=aarch64-linux-gnu- \
+                    	CROSS_COMPILE=aarch64-linux-android- \
+                    	CROSS_COMPILE_ARM32=arm-linux-androideabi-
+
         if ! [ -a "$IMAGE" ]; then
             finerr
             exit 1
